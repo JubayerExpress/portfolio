@@ -90,55 +90,16 @@ window.SITE = {
   },
   "books": [
     {
-      "title": "Your First Book Title",
+      "title": "New book",
       "year": "2026",
-      "blurb": "A short description of the book: what it is about and who it is for.",
-      "tags": [
-        "Literature",
-        "Poetry"
-      ],
-      "link": "#",
+      "blurb": "",
+      "tags": [],
+      "link": "",
       "linkText": "Read more",
-      "image": ""
-    },
-    {
-      "title": "Another Book or Collection",
-      "year": "2025",
-      "blurb": "Replace this with your own writing. Short stories, essays, poems, anything you publish.",
-      "tags": [
-        "Fiction"
-      ],
-      "link": "#",
-      "linkText": "Read more",
-      "image": ""
-    },
-    {
-      "title": "Work in Progress",
-      "year": "Coming soon",
-      "blurb": "Tease the next project here. Readers love knowing what is coming.",
-      "tags": [
-        "Essays"
-      ],
-      "link": "#",
-      "linkText": "Follow progress",
       "image": ""
     }
   ],
   "research": [
-    {
-      "title": "SoccerBot",
-      "venue": "Robotics project",
-      "year": "2025",
-      "summary": "A C++ project for building a soccer-playing robot. Edit this to describe the hardware, the control logic and what you learned.",
-      "tags": [
-        "Robotics",
-        "C++",
-        "Embedded"
-      ],
-      "link": "https://github.com/JubayerExpress/SoccerBot-HQ",
-      "linkText": "View on GitHub",
-      "image": ""
-    },
     {
       "title": "Dialect-Independent Natural Language Processing",
       "venue": "Ongoing research",
@@ -171,15 +132,6 @@ window.SITE = {
       "description": "Start JavaScript from zero: variables, functions, the DOM and small projects.",
       "link": "https://github.com/JubayerExpress/JavaScript-Basics-for-Beginners",
       "linkText": "Open course",
-      "image": ""
-    },
-    {
-      "title": "Your Lecture Website",
-      "platform": "Your own site",
-      "level": "Any level",
-      "description": "Point this card at one of your separate lecture websites.",
-      "link": "https://example.com",
-      "linkText": "Open course site",
       "image": ""
     }
   ],
