@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Jubayer — CSE Student, Writer & Space Dreamer</title>
+  <meta name="description" content="Portfolio of Jubayer — CSE student, robotics tinkerer and writer. Books, research, courses and a blog." />
+  <link rel="canonical" href="https://jubayer.bond/" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://jubayer.bond/" />
+  <meta property="og:title" content="Jubayer — CSE Student, Writer &amp; Space Dreamer" />
+  <meta property="og:description" content="Portfolio of Jubayer — CSE student, robotics tinkerer and writer. Books, research, courses and a blog." />
+  <meta property="og:image" content="https://jubayer.bond/assets/me.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="theme-color" content="#0b0d14" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&family=Fraunces:ital,wght@0,600;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <canvas id="bg" aria-hidden="true"></canvas>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="glow" id="glow" aria-hidden="true"></div>
+  <div class="ring" id="ring" aria-hidden="true"></div>
+  <div class="progress" id="progress" aria-hidden="true"></div>
+
+  <header class="nav" id="nav">
+    <a class="brand" href="#home" id="brand">J<span>.</span></a>
+    <nav id="menu" aria-label="Main">
+      <a href="#home" data-link>Home</a>
+      <a href="#about" data-link>About</a>
+      <a href="#books" data-link>Books</a>
+      <a href="#research" data-link>Research</a>
+      <a href="#courses" data-link>Courses</a>
+      <a href="#blog" data-link>Blog</a>
+      <a href="#contact" data-link>Contact</a>
+    </nav>
+    <div class="nav-actions">
+      <button id="theme" class="icon-btn mag" aria-label="Toggle theme" title="Toggle theme">◐</button>
+      <button id="burger" class="icon-btn burger" aria-label="Open menu" aria-expanded="false">☰</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- HOME -->
+    <section id="home" class="hero">
+      <div class="wrap hero-grid">
+        <div class="hero-text">
+          <p class="eyebrow reveal">hey, I'm</p>
+          <h1 class="reveal"><span id="heroName" class="grad" data-scr>Jubayer</span></h1>
+          <p class="role reveal"><span id="typed"></span><span class="caret">|</span></p>
+          <p class="lead reveal" id="heroIntro"></p>
+          <div class="cta reveal">
+            <a class="btn primary mag" href="#blog">Read my blog</a>
+            <a class="btn ghost mag" href="#books">Explore my work</a>
+          </div>
+          <div class="stats reveal" id="stats"></div>
+        </div>
+        <div class="hero-art reveal" id="heroArt">
+          <div class="portrait" id="portrait"></div>
+          <span class="sticker s1" data-depth="26">🚀 space nerd</span>
+          <span class="sticker s2" data-depth="-18">&lt;/&gt; CSE</span>
+          <span class="sticker s3" data-depth="32">✍️ writer</span>
+          <span class="sticker s4" data-depth="-24">🤖 robots</span>
+        </div>
+      </div>
+      <div class="wrap explore">
+        <a class="tile reveal" href="#about"><span class="tile-ic">01</span><h3 data-scr>About</h3><p>Who I am and what I do.</p><i>→</i></a>
+        <a class="tile reveal" href="#books"><span class="tile-ic">02</span><h3 data-scr>Books</h3><p>Literature and writing.</p><i>→</i></a>
+        <a class="tile reveal" href="#research"><span class="tile-ic">03</span><h3 data-scr>Research</h3><p>Papers and projects.</p><i>→</i></a>
+        <a class="tile reveal" href="#courses"><span class="tile-ic">04</span><h3 data-scr>Courses</h3><p>Lectures on their own sites.</p><i>→</i></a>
+        <a class="tile reveal wide" href="#blog"><span class="tile-ic">05</span><h3 data-scr>Blog &amp; Reviews</h3><p>Education, books, movies, games and more.</p><i>→</i></a>
+      </div>
+    </section>
+
+    <div class="ticker" aria-hidden="true"><div class="track" id="track"></div></div>
+
+    <!-- ABOUT -->
+    <section id="about" class="section">
+      <div class="wrap">
+        <h2 class="title reveal"><span>01</span> <b data-scr>About</b></h2>
+        <div class="bento">
+          <div class="b-photo reveal"><div class="avatar" id="avatar"></div></div>
+          <div class="b-bio reveal" id="aboutText"></div>
+          <ul class="b-facts reveal" id="facts"></ul>
+          <div class="b-skills reveal">
+            <h4 class="sub">Skills &amp; tools</h4>
+            <div class="chips" id="skills"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BOOKS -->
+    <section id="books" class="section alt">
+      <div class="wrap">
+        <h2 class="title reveal"><span>02</span> <b data-scr>Books</b></h2>
+        <p class="section-lead reveal">Stories, poems and essays I have written.</p>
+        <div class="cards" id="booksGrid"></div>
+      </div>
+    </section>
+
+    <!-- RESEARCH -->
+    <section id="research" class="section">
+      <div class="wrap">
+        <h2 class="title reveal"><span>03</span> <b data-scr>Research</b></h2>
+        <p class="section-lead reveal">Papers, theses and projects.</p>
+        <div class="timeline" id="researchList"></div>
+      </div>
+    </section>
+
+    <!-- COURSES -->
+    <section id="courses" class="section alt">
+      <div class="wrap">
+        <h2 class="title reveal"><span>04</span> <b data-scr>Courses</b></h2>
+        <p class="section-lead reveal">Each course lives on its own website. Jump straight in.</p>
+        <div class="cards" id="coursesGrid"></div>
+      </div>
+    </section>
+
+    <!-- BLOG -->
+    <section id="blog" class="section">
+      <div class="wrap">
+        <h2 class="title reveal"><span>05</span> <b data-scr>Blog</b></h2>
+        <p class="section-lead reveal">Learning notes, reviews and random thoughts.</p>
+        <div class="filters reveal" id="filters" role="tablist" aria-label="Blog categories"></div>
+        <div class="cards" id="postsGrid"></div>
+        <p class="empty" id="postsEmpty" hidden>No posts here yet. Check back soon.</p>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="section alt">
+      <div class="wrap contact">
+        <h2 class="title reveal"><span>06</span> <b data-scr>Contact</b></h2>
+        <p class="big reveal">Let's talk about <em>code</em>, <em>space</em> or <em>stories</em>.</p>
+        <a class="btn primary mag reveal" id="mailBtn" href="#">Say hello</a>
+        <div class="socials reveal" id="socials"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap"><span id="year"></span> <span id="footName"></span> · jubayer.bond · <a href="admin.html" class="adm">admin</a></div>
+  </footer>
+
+  <!-- Blog post reader -->
+  <div class="reader" id="reader" hidden>
+    <div class="reader-bar">
+      <button class="btn ghost small" id="readerClose">← Back to blog</button>
+      <button class="btn ghost small" id="readerShare">Copy link</button>
+    </div>
+    <article class="reader-body" id="readerBody"></article>
+  </div>
+
+  <button id="toTop" class="to-top mag" aria-label="Back to top">↑</button>
+
+  <script src="md.js"></script>
+  <script src="content.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
