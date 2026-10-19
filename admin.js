@@ -1,12 +1,11 @@
-/* Admin panel: edits content.js and uploads images straight to your GitHub repo
-   through the GitHub API, using a personal access token that stays in YOUR browser. */
+/* Admin panel: edits content.js and uploads images straight to your GitHub repo through the
+   GitHub API. Access is gated by login.js (login ID + password unlock the encrypted token). */
 (function () {
   "use strict";
   var MD = window.MD;
   var $ = function (id) { return document.getElementById(id); };
-  var CFG_KEY = "jz_admin_cfg", TOKEN_KEY = "jz_admin_token";
 
-  var cfg = { owner: "JubayerExpress", repo: "portfolio", branch: "main", token: "", remember: false };
+  var cfg = { owner: "", repo: "", branch: "main", token: "" };
   var D = null;            // the site data being edited
   var sha = null;          // sha of content.js on GitHub
   var connected = false;   // true once loaded from GitHub
@@ -14,7 +13,7 @@
   var dirty = false;
   var previews = {};       // uploaded image path -> data URL (so thumbnails work before deploy)
   var openItems = typeof WeakSet !== "undefined" ? new WeakSet() : { add: function () {}, has: function () { return false; } };
-  var tab = "connect";
+  var tab = "general";
 
   /* ---------- helpers ---------- */
   function h(tag, attrs, kids) {
@@ -52,22 +51,6 @@
   }
   function today() { return new Date().toISOString().slice(0, 10); }
   function clone(o) { return JSON.parse(JSON.stringify(o)); }
-
-  /* ---------- config storage ---------- */
-  function loadCfg() {
-    try {
-      var c = JSON.parse(localStorage.getItem(CFG_KEY) || "{}");
-      Object.keys(c).forEach(function (k) { if (k !== "token") cfg[k] = c[k]; });
-    } catch (e) {}
-    try { cfg.token = localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY) || ""; } catch (e) {}
-  }
-  function saveCfg() {
-    try {
-      localStorage.setItem(CFG_KEY, JSON.stringify({ owner: cfg.owner, repo: cfg.repo, branch: cfg.branch, remember: cfg.remember }));
-      localStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(TOKEN_KEY);
-      if (cfg.token) (cfg.remember ? localStorage : sessionStorage).setItem(TOKEN_KEY, cfg.token);
-    } catch (e) {}
-  }
 
   /* ---------- GitHub API ---------- */
   function api(path, opts) {
@@ -132,7 +115,7 @@
     return api("/contents/content.js", { method: "PUT", body: JSON.stringify(body) }).then(function (r) { return r.json(); });
   }
   function save() {
-    if (!connected) { toast("Connect to GitHub first (Connection tab), or use Download content.js.", "err"); return; }
+    if (!connected) { toast("Not connected to GitHub. Log out and log in again, or use Download content.js.", "err"); return; }
     var btn = $("saveBtn"); btn.disabled = true; btn.textContent = "Saving…";
     put(sha).catch(function (e) {
       if (e.status === 409 || e.status === 422) {
@@ -171,7 +154,7 @@
     });
   }
   function uploadImage(file) {
-    if (!connected) return Promise.reject(new Error("Connect to GitHub first (Connection tab) to upload images."));
+    if (!connected) return Promise.reject(new Error("Not connected to GitHub. Log out and log in again to upload images."));
     var name = Date.now() + "-" + slug(file.name.replace(/\.[^.]+$/, "")) + ".jpg", path = "assets/uploads/" + name;
     return toJpeg(file, 1600).then(function (img) {
       return api("/contents/" + path, { method: "PUT", body: JSON.stringify({ message: "Upload image " + name, content: img.base64, branch: cfg.branch }) })
@@ -183,7 +166,7 @@
   function refresh() {
     var s = $("status");
     s.className = "status" + (dirty ? " dirty" : connected ? " ok" : "");
-    s.textContent = (connected ? cfg.owner + "/" + cfg.repo + "@" + cfg.branch : local ? "Local mode (not connected)" : "Not connected") + (dirty ? " · unsaved changes" : "");
+    s.textContent = (connected ? cfg.owner + "/" + cfg.repo + "@" + cfg.branch : "Not connected") + (dirty ? " · unsaved changes" : "");
     $("saveBtn").disabled = !connected || !dirty;
   }
   function markDirty() { dirty = true; refresh(); }
@@ -358,8 +341,8 @@
 
   /* ---------- tabs ---------- */
   var TABS = [
-    ["connect", "Connection"], ["general", "General"], ["about", "About"], ["books", "Books"],
-    ["research", "Research"], ["courses", "Courses"], ["posts", "Blog posts"]
+    ["general", "General"], ["about", "About"], ["books", "Books"],
+    ["research", "Research"], ["courses", "Courses"], ["posts", "Blog posts"], ["account", "Account"]
   ];
   function renderTabs() {
     var nav = $("tabs"); nav.textContent = "";
@@ -372,9 +355,9 @@
 
   function renderPanel() {
     var p = $("panel"); p.textContent = "";
-    if (tab !== "connect" && !D) { tab = "connect"; renderTabs(); }
+    if (tab !== "account" && !D) { tab = "account"; renderTabs(); }
     var kids = [];
-    if (tab === "connect") kids = panelConnect();
+    if (tab === "account") kids = panelAccount();
     else if (tab === "general") kids = panelGeneral();
     else if (tab === "about") kids = panelAbout();
     else if (tab === "books") kids = panelBooks();
@@ -384,42 +367,47 @@
     kids.forEach(function (k) { p.appendChild(k); });
   }
 
-  function panelConnect() {
-    var o = h("input", { type: "text" }), r = h("input", { type: "text" }), b = h("input", { type: "text" }), t = h("input", { type: "password", autocomplete: "off", placeholder: "github_pat_…" });
-    var rem = h("input", { type: "checkbox" });
-    o.value = cfg.owner; r.value = cfg.repo; b.value = cfg.branch; t.value = cfg.token; rem.checked = !!cfg.remember;
-    function lab(txt, el) { return h("label", { class: "f" }, [h("span", { class: "l" }, txt), el]); }
-    function readForm() { cfg.owner = o.value.trim(); cfg.repo = r.value.trim(); cfg.branch = b.value.trim() || "main"; cfg.token = t.value.trim(); cfg.remember = rem.checked; saveCfg(); }
-    var go = h("button", { class: "btn primary", type: "button" }, connected ? "Reload from GitHub" : "Connect & load");
+  function panelAccount() {
+    function lab(txt, el, help) { return h("label", { class: "f" }, [h("span", { class: "l" }, txt), el, help ? h("small", null, help) : null].filter(Boolean)); }
+    var id = h("input", { type: "text", autocomplete: "username", autocapitalize: "none", spellcheck: "false" });
+    var pw = h("input", { type: "password", autocomplete: "new-password" });
+    var pw2 = h("input", { type: "password", autocomplete: "new-password" });
+    var tk = h("input", { type: "password", autocomplete: "off", placeholder: "leave empty to keep the current token" });
+    var go = h("button", { class: "btn primary", type: "button" }, "Update login");
     go.addEventListener("click", function () {
-      readForm();
-      if (!cfg.owner || !cfg.repo || !cfg.token) { toast("Fill in owner, repo and token.", "err"); return; }
-      if (dirty && !confirm("You have unsaved changes. Reloading will discard them. Continue?")) return;
-      go.disabled = true; go.textContent = "Connecting…";
-      loadRemote().then(function () { toast("Connected ✓ Content loaded from GitHub.", "ok"); tab = "general"; renderTabs(); renderPanel(); })
-        .catch(function (e) { toast(e.message, "err"); go.disabled = false; go.textContent = "Connect & load"; });
+      var newId = id.value.trim();
+      if (newId.length < 3) { toast("Login ID must be at least 3 characters.", "err"); return; }
+      if (pw.value.length < 10) { toast("Password must be at least 10 characters.", "err"); return; }
+      if (pw.value !== pw2.value) { toast("The two passwords do not match.", "err"); return; }
+      var newToken = tk.value.trim();
+      go.disabled = true; go.textContent = "Saving…";
+      window.AdminAuth.changeLogin({ owner: cfg.owner, repo: cfg.repo, branch: cfg.branch, token: cfg.token }, newId, pw.value, newToken)
+        .then(function (s) {
+          cfg.token = s.token; id.value = pw.value = pw2.value = tk.value = "";
+          toast("Login updated ✓ It applies on all devices in about a minute.", "ok");
+          if (!D) return loadRemote().then(function () { tab = "general"; renderTabs(); renderPanel(); });
+        })
+        .catch(function (e) { toast(e.message, "err"); })
+        .then(function () { go.disabled = false; go.textContent = "Update login"; });
     });
-    var loc = h("button", { class: "btn", type: "button" }, "Edit locally (no GitHub)");
-    loc.addEventListener("click", function () {
-      D = normalize(clone(window.SITE || {})); local = true; connected = false; dirty = false; refresh();
-      toast("Local mode: edit, then use Download content.js. Image upload needs GitHub.");
-      tab = "general"; renderTabs(); renderPanel();
+    var out = h("button", { class: "btn danger", type: "button" }, "Log out");
+    out.addEventListener("click", function () {
+      if (dirty && !confirm("You have unsaved changes. Log out and discard them?")) return;
+      dirty = false; window.AdminAuth.logout();
     });
-    var out = h("button", { class: "btn danger", type: "button" }, "Forget token on this device");
-    out.addEventListener("click", function () { cfg.token = ""; saveCfg(); connected = false; refresh(); t.value = ""; toast("Token removed from this browser."); });
-
-    return head("Connection", "Link this panel to your GitHub repo so Save publishes straight to your site.").concat([
-      card("Your repository", h("div", null, [
-        h("div", { class: "grid" }, [lab("GitHub username", o), lab("Repository name", r), lab("Branch", b), lab("Personal access token", t)]),
-        h("label", { class: "f check", style: "margin-top:12px" }, [rem, h("span", null, "Remember the token on this device (leave off on shared computers)")]),
-        h("div", { class: "row", style: "margin-top:16px" }, [go, loc, out])
+    return head("Account", "You are logged in. The session ends when you close this tab, or after 30 minutes without activity.").concat([
+      card("Session", h("div", null, [
+        h("p", { class: "hint", style: "margin-bottom:12px" }, "Publishing to " + cfg.owner + "/" + cfg.repo + " (" + cfg.branch + ")."),
+        out
       ])),
-      card("Get a token (one-time, 2 minutes)", h("ol", { class: "steps" }, [
-        h("li", null, ["Open ", h("a", { href: "https://github.com/settings/personal-access-tokens/new", target: "_blank", rel: "noopener" }, "GitHub → New fine-grained token"), "."]),
-        h("li", null, "Repository access: choose “Only select repositories” and pick this site's repo."),
-        h("li", null, "Permissions → Repository permissions → Contents: set to “Read and write”."),
-        h("li", null, "Generate, copy the token, paste it above. It is stored only in your browser, never on the website."),
-        h("li", null, "This page is public but does nothing without your token. Keep the token private.")
+      card("Change login ID or password", h("div", null, [
+        h("div", { class: "grid" }, [lab("New login ID", id), lab("New password", pw, "At least 10 characters. A long passphrase is best."), lab("Repeat new password", pw2), lab("Replace GitHub token (optional)", tk, "Only needed if your token expired or you made a new one.")]),
+        h("div", { class: "row", style: "margin-top:16px" }, [go])
+      ])),
+      card("Good to know", h("ul", { class: "steps" }, [
+        h("li", null, "Your GitHub token is stored encrypted in vault.js. Only your ID and password can unlock it."),
+        h("li", null, "Pick a strong, unique password: the encrypted file is public, so the password is the only lock."),
+        h("li", null, "Forgot the password? Make a new GitHub token, delete vault.js from the repo, and open admin.html to run the setup again.")
       ]))
     ]);
   }
@@ -510,13 +498,18 @@
   /* ---------- boot ---------- */
   $("saveBtn").addEventListener("click", save);
   $("dlBtn").addEventListener("click", function () {
-    if (!D) { toast("Nothing to download yet. Connect or choose local mode first.", "err"); return; }
+    if (!D) { toast("Nothing to download yet. Content has not loaded.", "err"); return; }
     download();
   });
-  loadCfg();
-  renderTabs(); renderPanel(); refresh();
-  if (cfg.token && cfg.owner && cfg.repo) {
-    loadRemote().then(function () { toast("Connected ✓", "ok"); tab = "general"; renderTabs(); renderPanel(); })
-      .catch(function (e) { toast(e.message, "err"); });
-  }
+  renderTabs(); refresh();
+  window.AdminAuth.start(function (sess) {
+    cfg.owner = sess.owner; cfg.repo = sess.repo; cfg.branch = sess.branch || "main"; cfg.token = sess.token;
+    renderTabs(); renderPanel(); refresh();
+    loadRemote().then(function () { toast("Logged in ✓", "ok"); tab = "general"; renderTabs(); renderPanel(); })
+      .catch(function (e) { toast(e.message, "err"); tab = "account"; renderTabs(); renderPanel(); });
+  }, { canLock: function () { return !dirty; } });
+  $("logoutBtn").addEventListener("click", function () {
+    if (dirty && !confirm("You have unsaved changes. Log out and discard them?")) return;
+    dirty = false; window.AdminAuth.logout();
+  });
 })();
