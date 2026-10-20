@@ -7,6 +7,7 @@ Modern, no-build portfolio: Home · About · Books · Research · Courses · Blo
 | File | What it is |
 |---|---|
 | `index.html`, `style.css`, `script.js` | The public site |
+| `space.css`, `space.js` | The space theme: starfield + warp intro, planets, orbits, HUD, cursor comet, rocket. Delete the two `<link>`/`<script>` lines in `index.html` to turn it off |
 | `content.js` | **All your content** (text, links, blog posts). The admin panel edits this file |
 | `md.js` | Markdown renderer for blog posts |
 | `admin.html`, `admin.css`, `admin.js`, `login.js` | The admin panel and its login gate |

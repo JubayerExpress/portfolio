@@ -13,14 +13,17 @@
   <meta property="og:description" content="Portfolio of Jubayer — CSE student, robotics tinkerer and writer. Books, research, courses and a blog." />
   <meta property="og:image" content="https://jubayer.bond/assets/me.jpg" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="theme-color" content="#0b0d14" />
+  <meta name="theme-color" content="#05060f" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&family=Fraunces:ital,wght@0,600;1,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&family=Fraunces:ital,wght@0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="space.css" />
 </head>
 <body>
-  <canvas id="bg" aria-hidden="true"></canvas>
+  <div class="nebula" aria-hidden="true"><i class="n1"></i><i class="n2"></i><i class="n3"></i></div>
+  <canvas id="space" aria-hidden="true"></canvas>
+  <canvas id="fx" aria-hidden="true"></canvas>
   <div class="grain" aria-hidden="true"></div>
   <div class="glow" id="glow" aria-hidden="true"></div>
   <div class="ring" id="ring" aria-hidden="true"></div>
@@ -60,6 +63,8 @@
         </div>
         <div class="hero-art reveal" id="heroArt">
           <div class="portrait" id="portrait"></div>
+          <i class="orbit o1"><i></i></i>
+          <i class="orbit o2"><i></i></i>
           <span class="sticker s1" data-depth="26">🚀 space nerd</span>
           <span class="sticker s2" data-depth="-18">&lt;/&gt; CSE</span>
           <span class="sticker s3" data-depth="32">✍️ writer</span>
@@ -155,10 +160,17 @@
     <article class="reader-body" id="readerBody"></article>
   </div>
 
+  <div class="hud" id="hud" aria-hidden="true">
+    <span>ALT <b id="hudAlt">0</b> km</span>
+    <span>SECTOR <b id="hudSec">HOME</b></span>
+    <span id="hudClock">--:--</span>
+  </div>
+
   <button id="toTop" class="to-top mag" aria-label="Back to top">↑</button>
 
   <script src="md.js"></script>
   <script src="content.js"></script>
   <script src="script.js"></script>
+  <script src="space.js"></script>
 </body>
 </html>

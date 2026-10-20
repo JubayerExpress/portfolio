@@ -10,7 +10,7 @@ window.SITE = {
     "Tech Wizard",
     "Writer"
   ],
-  "intro": "CSE undergrad, robotics enthusiast and tech wizard who also loves literature. I chase big ideas about space and stories, and write about them here.",
+  "intro": "CSE undergrad, robotics enthusiast and tech wizard who also loves literature. I build with AI and code, chase big ideas about space and stories, and write about them here.",
   "email": "jubayergmjz1@gmail.com",
   "heroImage": "assets/me.jpg",
   "ticker": [
@@ -88,8 +88,57 @@ window.SITE = {
       "Leadership"
     ]
   },
-  "books": [],
+  "books": [
+    {
+      "title": "Your First Book Title",
+      "year": "2026",
+      "blurb": "A short description of the book: what it is about and who it is for.",
+      "tags": [
+        "Literature",
+        "Poetry"
+      ],
+      "link": "#",
+      "linkText": "Read more",
+      "image": ""
+    },
+    {
+      "title": "Another Book or Collection",
+      "year": "2025",
+      "blurb": "Replace this with your own writing. Short stories, essays, poems, anything you publish.",
+      "tags": [
+        "Fiction"
+      ],
+      "link": "#",
+      "linkText": "Read more",
+      "image": ""
+    },
+    {
+      "title": "Work in Progress",
+      "year": "Coming soon",
+      "blurb": "Tease the next project here. Readers love knowing what is coming.",
+      "tags": [
+        "Essays"
+      ],
+      "link": "#",
+      "linkText": "Follow progress",
+      "image": ""
+    }
+  ],
   "research": [
+    {
+      "title": "SoccerBot",
+      "venue": "Robotics project",
+      "year": "2025",
+      "summary": "A C++ project for building a soccer-playing robot. Edit this to describe the hardware, the control logic and what you learned.",
+      "tags": [
+        "Robotics",
+        "C++",
+        "Embedded"
+      ],
+      "link": "https://github.com/JubayerExpress/SoccerBot-HQ",
+      "linkText": "View on GitHub",
+      "image": ""
+    },
     {
       "title": "Dialect-Independent Natural Language Processing",
       "venue": "Ongoing research",
@@ -123,6 +172,15 @@ window.SITE = {
       "link": "https://github.com/JubayerExpress/JavaScript-Basics-for-Beginners",
       "linkText": "Open course",
       "image": ""
+    },
+    {
+      "title": "Your Lecture Website",
+      "platform": "Your own site",
+      "level": "Any level",
+      "description": "Point this card at one of your separate lecture websites.",
+      "link": "https://example.com",
+      "linkText": "Open course site",
+      "image": ""
     }
   ],
   "blog": {
@@ -150,6 +208,51 @@ window.SITE = {
       ],
       "draft": false,
       "body": "Binary search is the classic \"I'm thinking of a number between 1 and 100\" trick, turned into an algorithm.\n\n## The idea\n\nInstead of checking every number one by one, you **always guess the middle**. If the guess is too high, throw away the upper half. If it's too low, throw away the lower half. Each guess halves the problem.\n\n> 1,000,000 items? At most **20 guesses**. That's the power of `O(log n)`.\n\n## The code\n\n```c\nint binary_search(int a[], int n, int target) {\n    int lo = 0, hi = n - 1;\n    while (lo <= hi) {\n        int mid = lo + (hi - lo) / 2;   // avoids overflow\n        if (a[mid] == target) return mid;\n        if (a[mid] < target) lo = mid + 1;\n        else hi = mid - 1;\n    }\n    return -1;\n}\n```\n\n## Things people get wrong\n\n- The array **must be sorted** first.\n- Use `lo + (hi - lo) / 2`, not `(lo + hi) / 2`, to avoid integer overflow.\n- Off-by-one errors live in the `lo`/`hi` updates. Trace a tiny example by hand.\n\nThat's it. Simple idea, surprisingly easy to get wrong, and worth mastering."
+    },
+    {
+      "id": "sample-book-review",
+      "title": "Sample Book Review: Replace Me",
+      "category": "Book Reviews",
+      "date": "2026-10-15",
+      "rating": 4,
+      "subject": "Book title by Author",
+      "excerpt": "A sample book review showing how ratings and subjects appear. Edit or delete it in the admin panel.",
+      "cover": "",
+      "tags": [
+        "Sample"
+      ],
+      "draft": false,
+      "body": "This is a **sample review**. Open the admin panel, delete or edit it, and write your own.\n\n## What I liked\n\n- Point one\n- Point two\n\n## What I didn't\n\nBe honest. Readers trust honest reviews.\n\n## Verdict\n\nOne or two sentences that sum it all up."
+    },
+    {
+      "id": "sample-movie-review",
+      "title": "Sample Movie Review: Replace Me",
+      "category": "Movie Reviews",
+      "date": "2026-10-12",
+      "rating": 5,
+      "subject": "Movie title (Year)",
+      "excerpt": "A sample movie review. Add a cover image and your own verdict.",
+      "cover": "",
+      "tags": [
+        "Sample"
+      ],
+      "draft": false,
+      "body": "This is a **sample review**. Open the admin panel, delete or edit it, and write your own.\n\n## What I liked\n\n- Point one\n- Point two\n\n## What I didn't\n\nBe honest. Readers trust honest reviews.\n\n## Verdict\n\nOne or two sentences that sum it all up."
+    },
+    {
+      "id": "sample-game-review",
+      "title": "Sample Game Review: Replace Me",
+      "category": "Game Reviews",
+      "date": "2026-10-10",
+      "rating": 3,
+      "subject": "Game title",
+      "excerpt": "A sample game review. Rate gameplay, story and vibes however you like.",
+      "cover": "",
+      "tags": [
+        "Sample"
+      ],
+      "draft": false,
+      "body": "This is a **sample review**. Open the admin panel, delete or edit it, and write your own.\n\n## What I liked\n\n- Point one\n- Point two\n\n## What I didn't\n\nBe honest. Readers trust honest reviews.\n\n## Verdict\n\nOne or two sentences that sum it all up."
     }
   ]
 };

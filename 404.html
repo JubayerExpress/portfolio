@@ -1,6 +1,21 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Page not found — jubayer.bond</title><link rel="icon" href="favicon.svg" type="image/svg+xml">
-<style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0b0d14;color:#e8e9f0;font-family:Inter,system-ui,sans-serif;text-align:center}
-h1{font-size:4rem;margin:0}a{color:#9b85ff}</style></head>
-<body><div><h1>404</h1><p>This page drifted off into space.</p><p><a href="/">Back to jubayer.bond →</a></p></div></body></html>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:grid;place-items:center;overflow:hidden;color:#e8eaf3;font-family:Inter,system-ui,sans-serif;text-align:center;
+  background:radial-gradient(60vw 60vw at 15% 0%,#2b1b7a66,transparent 70%),radial-gradient(50vw 50vw at 90% 90%,#0fb6d644,transparent 70%),#05060f}
+.stars,.stars::after{content:"";position:fixed;inset:0;pointer-events:none;
+  background-image:radial-gradient(1.5px 1.5px at 12% 20%,#fff,transparent),radial-gradient(1px 1px at 70% 12%,#bcd,transparent),radial-gradient(1.5px 1.5px at 40% 70%,#fff,transparent),radial-gradient(1px 1px at 88% 55%,#fde,transparent),radial-gradient(1px 1px at 25% 90%,#cff,transparent),radial-gradient(1.5px 1.5px at 60% 40%,#fff,transparent);
+  background-size:420px 420px;animation:tw 4s ease-in-out infinite alternate}
+.stars::after{background-size:290px 290px;animation-duration:6s;animation-direction:alternate-reverse;opacity:.7}
+@keyframes tw{from{opacity:.35}to{opacity:1}}
+.box{position:relative}
+h1{font-size:clamp(5rem,20vw,11rem);margin:0;line-height:1;font-weight:800;letter-spacing:-.04em;background:linear-gradient(120deg,#7c5cff,#22d3ee 55%,#ff6bcb);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 30px #7c5cff88)}
+.astro{font-size:4rem;display:inline-block;animation:f 9s ease-in-out infinite;filter:drop-shadow(0 0 16px #fff4)}
+@keyframes f{0%,100%{transform:translate(-40px,0) rotate(-14deg)}50%{transform:translate(40px,-22px) rotate(16deg)}}
+p{color:#9aa1b8;margin:.6rem 0}
+a{display:inline-block;margin-top:14px;padding:12px 26px;border-radius:999px;color:#fff;text-decoration:none;font-weight:600;background:linear-gradient(120deg,#7c5cff,#22d3ee);box-shadow:0 12px 30px -10px #7c5cffcc}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style></head>
+<body><div class="stars"></div><div class="box"><div class="astro">🧑‍🚀</div><h1>404</h1><p>This page drifted off into deep space.</p><a href="/">Return to base →</a></div></body></html>

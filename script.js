@@ -315,38 +315,5 @@
     art.firstElementChild.style.transform = "translate(" + (cx * -10) + "px," + (cy * -10) + "px)";
   }, { passive: true });
 
-  /* ---------- Constellation background ---------- */
-  var cv = $("bg"), ctx = cv.getContext("2d"), pts = [], W, H, mouse = { x: -999, y: -999 };
-  function size() {
-    var dpr = Math.min(devicePixelRatio || 1, 2);
-    W = cv.width = innerWidth * dpr; H = cv.height = innerHeight * dpr;
-    cv.style.width = innerWidth + "px"; cv.style.height = innerHeight + "px";
-    var n = Math.min(90, Math.floor((innerWidth * innerHeight) / 18000));
-    pts = [];
-    for (var i = 0; i < n; i++) pts.push({ x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - .5) * .35 * dpr, vy: (Math.random() - .5) * .35 * dpr });
-  }
-  addEventListener("resize", size); size();
-  addEventListener("pointermove", function (e) { var d = Math.min(devicePixelRatio || 1, 2); mouse.x = e.clientX * d; mouse.y = e.clientY * d; }, { passive: true });
-  function draw() {
-    ctx.clearRect(0, 0, W, H);
-    var dot = root.dataset.theme === "light" ? "90,80,200" : "160,170,255";
-    var lim = 140 * (devicePixelRatio > 1 ? 1.6 : 1);
-    for (var i = 0; i < pts.length; i++) {
-      var p = pts[i];
-      p.x += p.vx; p.y += p.vy;
-      if (p.x < 0 || p.x > W) p.vx *= -1;
-      if (p.y < 0 || p.y > H) p.vy *= -1;
-      ctx.beginPath(); ctx.arc(p.x, p.y, 1.6, 0, 6.283); ctx.fillStyle = "rgba(" + dot + ",.7)"; ctx.fill();
-      for (var j = i + 1; j < pts.length; j++) {
-        var q = pts[j], dx = p.x - q.x, dy = p.y - q.y, d = Math.sqrt(dx * dx + dy * dy);
-        if (d < lim) { ctx.strokeStyle = "rgba(" + dot + "," + (0.18 * (1 - d / lim)) + ")"; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke(); }
-      }
-      var mx = p.x - mouse.x, my = p.y - mouse.y, md = Math.sqrt(mx * mx + my * my);
-      if (md < lim * 1.3) { ctx.strokeStyle = "rgba(198,255,61," + (0.3 * (1 - md / (lim * 1.3))) + ")"; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(mouse.x, mouse.y); ctx.stroke(); }
-    }
-    if (!reduce) requestAnimationFrame(draw);
-  }
-  draw();
-
   route();
 })();
