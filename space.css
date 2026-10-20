@@ -133,13 +133,14 @@
 .pl-moon .globe{background:radial-gradient(circle at 70% 70%,rgba(0,0,0,.1) 0 6%,transparent 7%),radial-gradient(circle at 30% 40%,rgba(0,0,0,.12) 0 9%,transparent 10%),radial-gradient(circle at 35% 30%,#fff,#c3c8d8 55%,#5b6179);box-shadow:0 0 50px -8px rgba(200,210,255,.4)}
 
 /* contact: planet horizon */
-.contact-sec{padding-bottom:230px;overflow:clip}
+.contact-sec{padding-bottom:290px;overflow:clip}
 .contact .title::after{margin-inline:auto}
-.horizon{position:absolute;left:50%;bottom:calc(250px - 150vw);width:150vw;height:150vw;border-radius:50%;transform:translateX(-50%);pointer-events:none;z-index:-1;
+.horizon{position:absolute;left:50%;bottom:calc(170px - 150vw);width:150vw;height:150vw;border-radius:50%;transform:translateX(-50%);pointer-events:none;z-index:-1;
   background:radial-gradient(circle at 50% 0%,#14307a 0%,#0b1640 30%,#050a22 62%,#02030c 100%);
   box-shadow:0 -4px 0 rgba(120,210,255,.85),0 -10px 40px rgba(34,211,238,.7),0 -40px 120px rgba(124,92,255,.5),inset 0 30px 60px rgba(34,211,238,.3)}
-.horizon::after{content:"";position:absolute;inset:0;border-radius:50%;opacity:.6;
-  background:radial-gradient(circle at 50% 0.8%,rgba(255,200,120,.9) 0 .15%,transparent .6%),radial-gradient(circle at 44% 1.2%,rgba(255,220,160,.8) 0 .12%,transparent .5%),radial-gradient(circle at 58% 1.6%,rgba(255,190,110,.8) 0 .12%,transparent .5%),radial-gradient(circle at 36% 2.4%,rgba(255,220,160,.7) 0 .1%,transparent .4%),radial-gradient(circle at 66% 2.2%,rgba(255,210,150,.7) 0 .1%,transparent .4%)}
+.horizon::after{content:"";position:absolute;inset:0;border-radius:50%;opacity:.85;animation:city 4s ease-in-out infinite alternate;
+  background:radial-gradient(circle at 50% 3.2%,rgba(255,214,150,1) 0 1.2px,rgba(255,190,110,.35) 2px,transparent 5px),radial-gradient(circle at 44% 4.2%,rgba(255,214,150,1) 0 1.2px,rgba(255,190,110,.35) 2px,transparent 5px),radial-gradient(circle at 57% 3.9%,rgba(255,214,150,1) 0 1.2px,rgba(255,190,110,.35) 2px,transparent 5px),radial-gradient(circle at 36% 5.6%,rgba(255,214,150,1) 0 1.2px,rgba(255,190,110,.35) 2px,transparent 5px),radial-gradient(circle at 66% 5.2%,rgba(255,214,150,1) 0 1.2px,rgba(255,190,110,.35) 2px,transparent 5px),radial-gradient(circle at 30% 7.4%,rgba(255,214,150,1) 0 1.2px,rgba(255,190,110,.35) 2px,transparent 5px),radial-gradient(circle at 72% 7.0%,rgba(255,214,150,1) 0 1.2px,rgba(255,190,110,.35) 2px,transparent 5px),radial-gradient(circle at 52% 6.4%,rgba(255,214,150,1) 0 1.2px,rgba(255,190,110,.35) 2px,transparent 5px),radial-gradient(circle at 41% 7.8%,rgba(255,214,150,1) 0 1.2px,rgba(255,190,110,.35) 2px,transparent 5px),radial-gradient(circle at 61% 8.2%,rgba(255,214,150,1) 0 1.2px,rgba(255,190,110,.35) 2px,transparent 5px),radial-gradient(circle at 24% 9.2%,rgba(255,214,150,1) 0 1.2px,rgba(255,190,110,.35) 2px,transparent 5px),radial-gradient(circle at 78% 9.0%,rgba(255,214,150,1) 0 1.2px,rgba(255,190,110,.35) 2px,transparent 5px)}
+@keyframes city{from{opacity:.45}to{opacity:.95}}
 :root[data-theme="light"] .horizon{opacity:.85}
 .astro{position:absolute;right:12%;top:22%;font-size:clamp(2.4rem,6vw,4.4rem);pointer-events:none;animation:floatA 14s ease-in-out infinite;filter:drop-shadow(0 0 18px rgba(255,255,255,.35))}
 @keyframes floatA{0%,100%{transform:translate(0,0) rotate(-12deg)}50%{transform:translate(-30px,-26px) rotate(14deg)}}
@@ -172,7 +173,7 @@
 @media (max-width:860px){
   .hud{display:none}
   .pl-gas{right:-14%;opacity:.55}.pl-ice{left:-12%;opacity:.55}.pl-moon,.pl-red{opacity:.5}
-  .astro{right:6%;top:14%}
+  .astro{right:7%;top:auto;bottom:205px;font-size:2.6rem}
   .orbit.o2{inset:-16%}
 }
 @media (max-width:480px){.progress::after{display:none}}
@@ -275,3 +276,5 @@
 
 /* keep decorative glows from widening the page on phones */
 main,.hero{overflow-x:clip}
+
+.big{text-wrap:balance}
