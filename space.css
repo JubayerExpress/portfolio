@@ -181,3 +181,97 @@
   .title::after{width:130px}
   #fx{display:none}
 }
+
+/* ==========================================================
+   ROUND TWO — more motion, more polish
+   ========================================================== */
+
+/* entrance: nav drops in */
+.nav{animation:navin 1s .4s cubic-bezier(.2,.8,.2,1) both}
+@keyframes navin{from{transform:translateY(-110%);opacity:0}}
+
+/* galaxy swirl behind the hero */
+.galaxy{position:absolute;left:72%;top:34%;width:150vmax;height:150vmax;margin:-75vmax 0 0 -75vmax;opacity:.85;
+  background:conic-gradient(from 0deg,transparent 0%,rgba(124,92,255,.30) 7%,transparent 17%,rgba(34,211,238,.22) 31%,transparent 43%,rgba(255,107,203,.26) 57%,transparent 69%,rgba(124,92,255,.28) 82%,transparent 100%);
+  -webkit-mask-image:radial-gradient(circle,transparent 0,transparent 6%,rgba(0,0,0,.5) 16%,rgba(0,0,0,.5) 28%,transparent 56%);mask-image:radial-gradient(circle,transparent 0,transparent 6%,rgba(0,0,0,.5) 16%,rgba(0,0,0,.5) 28%,transparent 56%);
+  animation:spin 260s linear infinite;will-change:transform}
+:root[data-theme="light"] .galaxy{opacity:.28}
+
+/* magic-line nav pill */
+.nav-pill{position:absolute;left:0;top:0;border-radius:999px;pointer-events:none;opacity:0;z-index:0;
+  background:linear-gradient(120deg,rgba(124,92,255,.32),rgba(34,211,238,.22));
+  box-shadow:inset 0 0 0 1px rgba(170,180,255,.28),0 0 22px -4px rgba(124,92,255,.8);
+  transition:transform .55s cubic-bezier(.34,1.45,.5,1),width .55s cubic-bezier(.34,1.45,.5,1),height .3s,opacity .3s}
+#menu a{position:relative;z-index:1}
+@media (min-width:861px){
+  #menu{position:relative}
+  #menu a.active,#menu a:hover{background:none;box-shadow:none}
+  #menu a.active{color:var(--text)}
+}
+
+/* shimmering titles */
+.title b{background:linear-gradient(100deg,var(--text) 40%,var(--b) 49%,var(--c) 52%,var(--text) 61%);background-size:260% 100%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 7s ease-in-out infinite}
+@keyframes shine{0%,35%{background-position:120% 0}70%,100%{background-position:-60% 0}}
+.title span{animation:flick 5s steps(1) infinite}
+@keyframes flick{0%,92%,96%,100%{opacity:1}94%,98%{opacity:.35}}
+
+/* hero text / role polish */
+.hero-text,.hero-art{will-change:translate,opacity}
+.caret{text-shadow:0 0 12px var(--c)}
+.lead{position:relative}
+.lead::before{content:"";position:absolute;left:-18px;top:6px;bottom:6px;width:2px;border-radius:2px;background:linear-gradient(var(--b),var(--a),transparent);box-shadow:0 0 10px var(--b)}
+
+/* chips: gentle wave */
+.chips .chip{animation:chipwave 6s ease-in-out infinite}
+.chips .chip:nth-child(3n+2){animation-delay:-2s}
+.chips .chip:nth-child(3n){animation-delay:-4s}
+@keyframes chipwave{50%{transform:translateY(-3px)}}
+.chips .chip:hover{animation-play-state:paused}
+
+/* animated gradient covers + shine sweep on every card cover */
+.cover{background-size:220% 220%!important;animation:flow 9s ease infinite;position:relative}
+.cover::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.28) 50%,transparent 65%);
+  transform:translateX(-120%);transition:transform .9s cubic-bezier(.2,.7,.2,1);pointer-events:none}
+.card:hover .cover::after{transform:translateX(120%)}
+
+/* tiles: breathing arrow + glowing number */
+.tile i{animation:nudge 2.4s ease-in-out infinite}
+@keyframes nudge{50%{transform:translateX(5px)}}
+.tile:hover .tile-ic{text-shadow:0 0 14px var(--b)}
+
+/* flat-out showing off: stat numbers pulse softly */
+.stat b{animation:statglow 4s ease-in-out infinite}
+@keyframes statglow{50%{text-shadow:0 0 30px rgba(124,92,255,.9)}}
+
+/* fly-bys (satellite, UFO, comet) */
+.flyby{position:fixed;left:0;z-index:-2;pointer-events:none;font-size:1.5rem;opacity:0;will-change:transform}
+.flyby span{display:block;filter:drop-shadow(0 0 10px rgba(120,220,255,.8))}
+.flyby.sat{top:15%;animation:flyR var(--dur) linear var(--dl) infinite}
+.flyby.sat span{animation:blinkS 1.2s steps(2) infinite}
+.flyby.ufo{top:64%;font-size:1.9rem;animation:flyL var(--dur) linear var(--dl) infinite}
+.flyby.ufo span{animation:wobble 2.2s ease-in-out infinite;filter:drop-shadow(0 0 16px rgba(120,255,160,.9))}
+.flyby.comet{top:8%;font-size:1.7rem;animation:fall var(--dur) linear var(--dl) infinite}
+.flyby.comet span{filter:drop-shadow(0 0 14px rgba(255,170,90,.95)) drop-shadow(-30px -16px 14px rgba(255,150,80,.55))}
+@keyframes flyR{0%{opacity:0;transform:translate3d(-12vw,0,0) rotate(-8deg)}2%{opacity:.9}20%{opacity:.9;transform:translate3d(112vw,-7vh,0) rotate(14deg)}21%,100%{opacity:0;transform:translate3d(112vw,-7vh,0)}}
+@keyframes flyL{0%{opacity:0;transform:translate3d(112vw,0,0)}2%{opacity:.95}22%{opacity:.95;transform:translate3d(-12vw,-12vh,0)}23%,100%{opacity:0;transform:translate3d(-12vw,-12vh,0)}}
+@keyframes fall{0%{opacity:0;transform:translate3d(90vw,-10vh,0) rotate(0)}2%{opacity:1}12%{opacity:1;transform:translate3d(10vw,70vh,0)}13%,100%{opacity:0;transform:translate3d(10vw,70vh,0)}}
+@keyframes blinkS{50%{filter:drop-shadow(0 0 3px rgba(120,220,255,.3))}}
+@keyframes wobble{0%,100%{transform:translateY(0) rotate(-10deg)}50%{transform:translateY(-12px) rotate(10deg)}}
+
+/* second ticker */
+.ticker.rev{rotate:1.2deg;margin:60px -2% 10px}
+.ticker.rev .track{animation-direction:reverse;animation-duration:42s}
+.ticker.rev .track span:nth-child(even){color:var(--b)}
+.ticker.rev .track span:nth-child(odd){-webkit-text-stroke-color:var(--c)}
+
+/* footer */
+.footer .wrap{position:relative}
+.footer .wrap::before{content:"";display:block;height:1px;margin:-34px auto 24px;width:min(420px,70%);
+  background:linear-gradient(90deg,transparent,var(--b),var(--c),transparent);background-size:200% 100%;animation:flow 5s linear infinite}
+
+@media (max-width:860px){.flyby.ufo,.flyby.comet{display:none}.galaxy{left:60%;opacity:.6}.lead::before{display:none}}
+@media (prefers-reduced-motion:reduce){.flyby,.galaxy{display:none}.nav{animation:none}}
+
+/* keep decorative glows from widening the page on phones */
+main,.hero{overflow-x:clip}

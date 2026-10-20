@@ -15,12 +15,24 @@
   var warp = reduce ? 0 : 1;            // 1 = hyperspace, decays to 0 on load
   var scrollY = window.scrollY, vel = 0, lastY = scrollY;
   var mx = 0, my = 0, tmx = 0, tmy = 0; // smoothed mouse offset (-.5..+.5)
+  var dust = [], sprites = [], pmx = -9999, pmy = -9999, sx = [], sy = [];
+  function sprite(rgb) {
+    var c = document.createElement("canvas"); c.width = c.height = 128;
+    var g = c.getContext("2d"), gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+    gr.addColorStop(0, "rgba(" + rgb + ",.55)"); gr.addColorStop(0.45, "rgba(" + rgb + ",.16)"); gr.addColorStop(1, "rgba(" + rgb + ",0)");
+    g.fillStyle = gr; g.fillRect(0, 0, 128, 128); return c;
+  }
+  sprites = [sprite("124,92,255"), sprite("34,211,238"), sprite("255,107,203"), sprite("255,190,120")];
   var tints = ["255,255,255", "190,210,255", "255,235,200", "170,230,255", "255,200,235"];
 
   function build() {
     W = cv.width = Math.floor(innerWidth * DPR);
     H = cv.height = Math.floor(innerHeight * DPR);
     var n = Math.min(260, Math.floor(innerWidth * innerHeight / 5200));
+    dust = [];
+    for (var d = 0; d < (innerWidth < 700 ? 9 : 20); d++) {
+      dust.push({ x: rnd(), y: rnd(), z: 0.3 + rnd() * 0.7, r: (60 + rnd() * 130) * DPR, s: sprites[(rnd() * sprites.length) | 0], sp: 0.004 + rnd() * 0.012, ph: rnd() * 6.28, a: 0.35 + rnd() * 0.5 });
+    }
     stars = [];
     for (var i = 0; i < n; i++) {
       var z = 0.15 + rnd() * 0.85;
@@ -63,6 +75,17 @@
 
     ctx.clearRect(0, 0, W, H);
     var cx = W / 2, cy = H / 2;
+    if (!light) {
+      ctx.globalCompositeOperation = "lighter";
+      for (var di = 0; di < dust.length; di++) {
+        var du = dust[di];
+        var dxp = du.x * W + Math.sin(t * 0.12 + du.ph) * 50 * DPR + mx * du.z * 70 * DPR;
+        var dyp = (((du.y * H - t * du.sp * H - scrollY * DPR * du.z * 0.12) % (H + du.r * 2)) + (H + du.r * 2)) % (H + du.r * 2) - du.r;
+        ctx.globalAlpha = du.a * (0.7 + 0.3 * Math.sin(t * 0.4 + du.ph));
+        ctx.drawImage(du.s, dxp - du.r, dyp - du.r, du.r * 2, du.r * 2);
+      }
+      ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
+    }
     var streakV = (Math.abs(vel) < 1.5 ? 0 : Math.max(-40, Math.min(40, vel))) * DPR;
 
     for (var i = 0; i < stars.length; i++) {
@@ -75,6 +98,7 @@
       ctx.strokeStyle = "rgba(" + col + "," + (a * (light ? 0.55 : 1)) + ")";
       ctx.fillStyle = ctx.strokeStyle;
 
+      sx[i] = px; sy[i] = py;
       var dx = px - cx, dy = py - cy;
       var wl = w * s.z * 0.55;            // warp streak length factor
       var sv = streakV * s.z * 0.9;
@@ -91,11 +115,25 @@
       }
       if (s.flare && !light && w < 0.2) {
         var f = s.r * (3.5 + 2 * tw);
+        ctx.globalAlpha = 0.35 * tw; ctx.drawImage(sprites[1], px - f * 3, py - f * 3, f * 6, f * 6); ctx.globalAlpha = 1;
         ctx.lineWidth = 0.7 * DPR;
         ctx.beginPath();
         ctx.moveTo(px - f, py); ctx.lineTo(px + f, py);
         ctx.moveTo(px, py - f); ctx.lineTo(px, py + f);
         ctx.stroke();
+      }
+    }
+
+    // interactive constellation around the pointer
+    if (!reduce && fine && !light && pmx > -999) {
+      var R = 150 * DPR, near = [];
+      for (var q = 0; q < stars.length; q++) {
+        var ddx = sx[q] - pmx, ddy = sy[q] - pmy, dd = Math.sqrt(ddx * ddx + ddy * ddy);
+        if (dd < R && near.length < 14) { near.push(q); ctx.strokeStyle = "rgba(120,225,255," + (0.55 * (1 - dd / R)) + ")"; ctx.lineWidth = 0.9 * DPR; ctx.beginPath(); ctx.moveTo(pmx, pmy); ctx.lineTo(sx[q], sy[q]); ctx.stroke(); ctx.fillStyle = "rgba(255,255,255," + (0.9 * (1 - dd / R)) + ")"; ctx.beginPath(); ctx.arc(sx[q], sy[q], stars[q].r * 1.8, 0, 6.283); ctx.fill(); }
+      }
+      for (var a1 = 0; a1 < near.length; a1++) for (var a2 = a1 + 1; a2 < near.length; a2++) {
+        var ex = sx[near[a1]] - sx[near[a2]], ey = sy[near[a1]] - sy[near[a2]], ed = Math.sqrt(ex * ex + ey * ey);
+        if (ed < R * 0.75) { ctx.strokeStyle = "rgba(170,150,255," + (0.3 * (1 - ed / (R * 0.75))) + ")"; ctx.lineWidth = 0.7 * DPR; ctx.beginPath(); ctx.moveTo(sx[near[a1]], sy[near[a1]]); ctx.lineTo(sx[near[a2]], sy[near[a2]]); ctx.stroke(); }
       }
     }
 
@@ -125,7 +163,9 @@
   addEventListener("scroll", function () { scrollY = window.scrollY; }, { passive: true });
   addEventListener("pointermove", function (e) {
     tmx = e.clientX / innerWidth - 0.5; tmy = e.clientY / innerHeight - 0.5;
+    pmx = e.clientX * DPR; pmy = e.clientY * DPR;
   }, { passive: true });
+  document.addEventListener("pointerleave", function () { pmx = pmy = -9999; });
 
   /* ---------------- Planets (injected, parallax on scroll) ---------------- */
   var planets = [];
@@ -153,7 +193,15 @@
     contact.appendChild(hz); contact.appendChild(as);
   }
 
+  var heroText = document.querySelector(".hero-text"), heroArt = $("heroArt"), heroSec = $("home");
   function updateWorld() {
+    if (!reduce && heroText && scrollY < innerHeight * 1.3) {
+      var k = Math.min(1, scrollY / (innerHeight * 0.8));
+      heroText.style.translate = "0 " + (scrollY * 0.14).toFixed(1) + "px";
+      heroText.style.opacity = (1 - k * 0.85).toFixed(3);
+      heroArt.style.translate = "0 " + (scrollY * 0.26).toFixed(1) + "px";
+      heroArt.style.scale = (1 - k * 0.12).toFixed(3);
+    }
     if (!reduce) {
       for (var i = 0; i < planets.length; i++) {
         var p = planets[i], r = p.sec.getBoundingClientRect();
@@ -203,11 +251,22 @@
     });
     if (!running) { running = true; requestAnimationFrame(fxLoop); }
   }
+  function ring(x, y, c, grow) {
+    parts.push({ x: x * DPR, y: y * DPR, ring: true, r: 4 * DPR, grow: (grow || 3.2) * DPR, life: 1, decay: 0.026, c: c || "#22d3ee", size: 0, vx: 0, vy: 0, g: 0 });
+    if (!running) { running = true; requestAnimationFrame(fxLoop); }
+  }
   function fxLoop() {
     fctx.clearRect(0, 0, FW, FH);
     fctx.globalCompositeOperation = "lighter";
     for (var i = parts.length - 1; i >= 0; i--) {
       var p = parts[i];
+      if (p.ring) {
+        p.r += p.grow; p.grow *= 0.97; p.life -= p.decay;
+        if (p.life <= 0) { parts.splice(i, 1); continue; }
+        fctx.globalAlpha = p.life * 0.8; fctx.strokeStyle = p.c; fctx.lineWidth = 2.2 * DPR * p.life;
+        fctx.beginPath(); fctx.arc(p.x, p.y, p.r, 0, 6.283); fctx.stroke();
+        continue;
+      }
       p.x += p.vx; p.y += p.vy; p.vy += p.g; p.vx *= 0.985; p.life -= p.decay;
       if (p.life <= 0) { parts.splice(i, 1); continue; }
       fctx.globalAlpha = Math.max(0, p.life);
@@ -236,6 +295,7 @@
     }, { passive: true });
 
     addEventListener("pointerdown", function (e) {
+      ring(e.clientX, e.clientY, "#22d3ee"); ring(e.clientX, e.clientY, "#ff6bcb", 2);
       for (var i = 0; i < 22; i++) {
         var a = rnd() * 6.283, sp = 1.2 + rnd() * 4.2;
         emit(e.clientX, e.clientY, { vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, size: 1.4 + rnd() * 1.8, decay: 0.022 + rnd() * 0.015, star: i % 3 === 0 });
@@ -273,6 +333,45 @@
       el.classList.add("done");
     }
   });
+
+  /* ---------------- Sliding nav pill ("magic line") ---------------- */
+  var menu = $("menu");
+  if (menu) {
+    var pill = document.createElement("i"); pill.className = "nav-pill"; menu.insertBefore(pill, menu.firstChild);
+    var linksEls = Array.prototype.slice.call(menu.querySelectorAll("a"));
+    var movePill = function (a) {
+      if (!a || innerWidth <= 860) { pill.style.opacity = 0; return; }
+      pill.style.opacity = 1;
+      pill.style.width = a.offsetWidth + "px"; pill.style.height = a.offsetHeight + "px";
+      pill.style.transform = "translate(" + a.offsetLeft + "px," + a.offsetTop + "px)";
+    };
+    var home = function () { movePill(menu.querySelector("a.active")); };
+    linksEls.forEach(function (a) {
+      a.addEventListener("mouseenter", function () { movePill(a); });
+    });
+    menu.addEventListener("mouseleave", home);
+    new MutationObserver(home).observe(menu, { attributes: true, subtree: true, attributeFilter: ["class"] });
+    addEventListener("resize", home); addEventListener("load", home); setTimeout(home, 300);
+  }
+
+  /* ---------------- Galaxy swirl + fly-bys ---------------- */
+  var neb = document.querySelector(".nebula");
+  if (neb) { var gx = document.createElement("i"); gx.className = "galaxy"; neb.appendChild(gx); }
+  [["🛰️", "sat", "52s", "7s"], ["🛸", "ufo", "74s", "26s"], ["☄️", "comet", "38s", "14s"]].forEach(function (f) {
+    var el = document.createElement("div");
+    el.className = "flyby " + f[1]; el.setAttribute("aria-hidden", "true");
+    el.style.setProperty("--dur", f[2]); el.style.setProperty("--dl", f[3]);
+    el.innerHTML = "<span>" + f[0] + "</span>";
+    document.body.appendChild(el);
+  });
+
+  /* ---------------- Second ticker, running the other way ---------------- */
+  var tk = document.querySelector(".ticker");
+  if (tk && contact) {
+    var t2 = tk.cloneNode(true); t2.classList.add("rev");
+    var tr = t2.querySelector(".track"); if (tr) { tr.removeAttribute("id"); Array.prototype.slice.call(tr.children).reverse().forEach(function (n) { tr.appendChild(n); }); }
+    contact.parentNode.insertBefore(t2, contact);
+  }
 
   /* kick off */
   if (reduce) frame(performance.now()); else requestAnimationFrame(frame);
