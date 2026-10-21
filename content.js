@@ -90,7 +90,7 @@ window.SITE = {
   },
   "books": [
     {
-      "title": " অহর্নিশ জাগরণ",
+      "title": " অহর্নিশ জাগরণ ",
       "year": "2026",
       "blurb": " ",
       "tags": [
