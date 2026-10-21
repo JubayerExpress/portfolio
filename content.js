@@ -102,7 +102,7 @@ window.SITE = {
       "image": "assets/uploads/1792605165367-post.jpg"
     },
     {
-      "title": "Another Book or Collection",
+      "title": "My Journey to Engineering",
       "year": "2026",
       "blurb": "",
       "tags": [
