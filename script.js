@@ -77,6 +77,38 @@
       '<a class="link" ' + linkAttrs(c.link) + ">" + esc(c.linkText || "Open") + " <span>↗</span></a></article>";
   }).join("");
 
+  /* ---------- Education ---------- */
+  var E = S.education || {};
+  var FB = '<svg class="fb" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.78-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0 0 22 12z"/></svg>';
+  $("eduLead").textContent = E.intro || "";
+  $("eduList").innerHTML = (E.schooling || []).map(function (e, i) {
+    var now = /now|present|pursuing/i.test(e.year + " " + (e.status || ""));
+    return '<article class="t-item reveal' + (now ? " now" : "") + '" style="--d:' + (i * 0.08) + 's">' +
+      '<span class="meta">' + esc(e.year) + " · " + esc(e.institution) + "</span><h3>" + esc(e.title) + "</h3>" +
+      (e.note ? "<p>" + esc(e.note) + "</p>" : "") +
+      (e.status ? '<span class="badge' + (now ? " live" : "") + '">' + esc(e.status) + "</span>" : "") + "</article>";
+  }).join("");
+  $("eduHl").innerHTML = (E.highlights || []).map(function (x, i) {
+    return '<div class="hl reveal" style="--d:' + (i * 0.08) + 's"><b>' + esc(x.n) + "</b><span>" + esc(x.l) + "</span></div>";
+  }).join("");
+  $("achGrid").innerHTML = (E.achievements || []).map(function (a, i) {
+    return '<article class="card ach reveal" style="--d:' + ((i % 3) * 0.08) + 's"><span class="ach-ic" aria-hidden="true">' + esc(a.icon || "★") + "</span>" +
+      '<div class="ach-tx"><span class="meta">' + esc(a.year) + "</span><h3>" + esc(a.title) + "</h3><p>" + esc(a.org) + "</p></div></article>";
+  }).join("");
+  $("commGrid").innerHTML = (E.communities || []).map(function (c, i) {
+    var short = c.short || (c.name || "").split(/\s+/).map(function (w) { return w.charAt(0); }).join("").slice(0, 5);
+    var logo = c.logo ? '<span class="logo-badge"><img src="' + esc(safe(c.logo)) + '" alt="' + esc(c.name) + ' logo" loading="lazy"></span>'
+                      : '<span class="logo-badge mono" aria-hidden="true">' + esc(short) + "</span>";
+    return '<article class="card comm reveal" style="--d:' + (i * 0.1) + 's">' +
+      '<div class="comm-head">' + logo + '<div><span class="meta">' + esc(short) + "</span><h3>" + esc(c.name) + "</h3></div></div>" +
+      '<ul class="roles">' + (c.roles || []).map(function (r) { return "<li>" + esc(r) + "</li>"; }).join("") + "</ul>" +
+      (c.description ? "<p>" + esc(c.description) + "</p>" : "") +
+      '<div class="comm-links">' +
+      (c.facebook ? '<a class="btn ghost small fbbtn" ' + linkAttrs(c.facebook) + ">" + FB + " Facebook</a>" : "") +
+      (c.website ? '<a class="btn ghost small" ' + linkAttrs(c.website) + ">Website ↗</a>" : "") +
+      "</div></article>";
+  }).join("");
+
   $("mailBtn").href = "mailto:" + (S.email || "");
   $("socials").innerHTML = (S.socials || []).map(function (s) {
     return "<a " + linkAttrs(s.url) + ">" + esc(s.label) + "</a>";

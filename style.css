@@ -222,3 +222,42 @@ h1{font-family:"Space Grotesk",sans-serif;font-size:clamp(3rem,9vw,6.2rem);line-
 @media (max-width:480px){.explore{grid-template-columns:1fr}}
 @media (pointer:coarse){.ring{display:none}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}html{scroll-behavior:auto}}
+
+/* ---------- Education tab ---------- */
+.explore{grid-template-columns:repeat(3,1fr)}
+.edu-top{display:grid;grid-template-columns:1.15fr .85fr;gap:36px;align-items:start;margin-top:8px}
+.edu-gap{margin-top:56px}
+.t-item .badge{margin-top:6px;justify-self:start}
+.badge.live{background:var(--b);color:#031318;position:relative;padding-left:24px}
+.badge.live::before{content:"";position:absolute;left:10px;top:50%;width:7px;height:7px;margin-top:-3.5px;border-radius:50%;background:#031318;animation:blink 1.2s steps(2) infinite}
+.t-item.now{border-color:color-mix(in srgb,var(--b) 55%,var(--line))}
+.hl-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.hl{padding:20px;border-radius:var(--radius);background:var(--card);border:1px solid var(--line);transition:.3s;position:relative;overflow:hidden}
+.hl:hover{border-color:var(--b);transform:translateY(-4px)}
+.hl b{display:block;font-family:"Space Grotesk",sans-serif;font-size:clamp(1.7rem,3.2vw,2.3rem);line-height:1.1;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hl span{display:block;margin-top:6px;color:var(--muted);font-size:.85rem;line-height:1.4}
+.ach-grid{grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px}
+.card.ach{flex-direction:row;align-items:center;gap:16px;padding:18px 20px}
+.ach-ic{flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-size:1.7rem;
+  background:linear-gradient(135deg,rgba(124,92,255,.28),rgba(34,211,238,.2));border:1px solid var(--line);transition:transform .4s cubic-bezier(.34,1.56,.5,1)}
+.card.ach:hover .ach-ic{transform:scale(1.15) rotate(-8deg)}
+.ach-tx h3{font-size:1.02rem;line-height:1.3;margin:2px 0}
+.ach-tx p{font-size:.86rem;flex:none}
+.comm-grid{grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:22px}
+.comm-head{display:flex;gap:16px;align-items:center}
+.comm-head h3{font-size:1.15rem}
+.logo-badge{flex:none;width:76px;height:76px;border-radius:20px;background:#fff;display:grid;place-items:center;padding:7px;
+  box-shadow:0 0 0 1px rgba(255,255,255,.25),0 12px 28px -10px rgba(34,211,238,.45);transition:transform .5s cubic-bezier(.34,1.56,.5,1)}
+.logo-badge img{width:100%;height:100%;object-fit:contain;border-radius:12px}
+.logo-badge.mono{background:var(--grad);color:#fff;font:700 .95rem "Space Grotesk",sans-serif;letter-spacing:.04em}
+.card.comm:hover .logo-badge{transform:rotate(-6deg) scale(1.08)}
+.roles{list-style:none;display:grid;gap:6px}
+.roles li{position:relative;padding-left:18px;font-size:.92rem}
+.roles li::before{content:"✦";position:absolute;left:0;color:var(--lime);font-size:.75rem;top:.2em}
+.comm-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.fbbtn{display:inline-flex;align-items:center;gap:8px}
+.fbbtn:hover{border-color:#4c8dff;color:#7fb0ff}
+.fb{width:16px;height:16px}
+@media (max-width:980px){.explore{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:860px){.edu-top{grid-template-columns:1fr}.hl-grid{grid-template-columns:1fr 1fr}}
+@media (max-width:480px){.explore{grid-template-columns:1fr}.ach-grid,.comm-grid{grid-template-columns:1fr}}

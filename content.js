@@ -254,5 +254,142 @@ window.SITE = {
       "draft": false,
       "body": "This is a **sample review**. Open the admin panel, delete or edit it, and write your own.\n\n## What I liked\n\n- Point one\n- Point two\n\n## What I didn't\n\nBe honest. Readers trust honest reviews.\n\n## Verdict\n\nOne or two sentences that sum it all up."
     }
-  ]
+  ],
+  "education": {
+    "intro": "Where I study, what I have achieved so far, and the communities I am proud to be part of.",
+    "schooling": [
+      {
+        "title": "B.Sc. in Computer Science and Engineering",
+        "institution": "BRAC University",
+        "year": "Now",
+        "note": "Focusing on AI, NLP and robotics.",
+        "status": "Currently pursuing"
+      },
+      {
+        "title": "Higher Secondary Certificate (HSC)",
+        "institution": "Rajuk Uttara Model College",
+        "year": "2021",
+        "note": "Scored 600 out of 600 marks in Physics, Chemistry and Higher Mathematics.",
+        "status": "Board scholarship"
+      },
+      {
+        "title": "Secondary School Certificate (SSC)",
+        "institution": "Rajuk Uttara Model College",
+        "year": "2019",
+        "note": "Completed with distinction.",
+        "status": "Board scholarship"
+      }
+    ],
+    "highlights": [
+      {
+        "n": "600/600",
+        "l": "HSC marks in Physics, Chemistry and Higher Math"
+      },
+      {
+        "n": "2×",
+        "l": "Board scholarships (SSC and HSC)"
+      },
+      {
+        "n": "18th",
+        "l": "Bangladesh Physics Olympiad, college category"
+      },
+      {
+        "n": "Best",
+        "l": "Campus Ambassador, Technocrats V.2 (2024)"
+      }
+    ],
+    "achievements": [
+      {
+        "icon": "🧭",
+        "title": "General Secretary",
+        "org": "BRAC University Computer Club (BUCC)",
+        "year": "2026"
+      },
+      {
+        "icon": "🤖",
+        "title": "Machine Learning Instructor",
+        "org": "Residential Campus, BRAC University",
+        "year": "2026"
+      },
+      {
+        "icon": "🔬",
+        "title": "Former Director, Research and Project Management",
+        "org": "Robotics Club of BRAC University (ROBU)",
+        "year": "2025"
+      },
+      {
+        "icon": "📣",
+        "title": "bdapps Campus Ambassador",
+        "org": "bdapps",
+        "year": "2025"
+      },
+      {
+        "icon": "⚙️",
+        "title": "Robotics Instructor",
+        "org": "ROBU · Residential Campus, BRAC University",
+        "year": "2024–2025"
+      },
+      {
+        "icon": "🏆",
+        "title": "Best Campus Ambassador",
+        "org": "National Innovation Competition 2024 · Technocrats V.2, IUBAT",
+        "year": "2024"
+      },
+      {
+        "icon": "💙",
+        "title": "Advisor",
+        "org": "Oporajita Foundation (charitable organization)",
+        "year": "2024–Present"
+      },
+      {
+        "icon": "🎖️",
+        "title": "College Prefect",
+        "org": "Rajuk Uttara Model College",
+        "year": "2020–2022"
+      },
+      {
+        "icon": "🏅",
+        "title": "Secured 18th Position, College Category",
+        "org": "Bangladesh Physics Olympiad",
+        "year": "2019"
+      }
+    ],
+    "communities": [
+      {
+        "name": "Robotics Club of BRAC University",
+        "short": "ROBU",
+        "logo": "assets/logos/robu.png",
+        "roles": [
+          "Director, Research and Project Management · 2025",
+          "Robotics Instructor · 2024–2025"
+        ],
+        "description": "BRAC University's robotics community: workshops, competitions and student-built robots.",
+        "facebook": "https://www.facebook.com/BRACU.Robotics.Club",
+        "website": ""
+      },
+      {
+        "name": "BRAC University Computer Club",
+        "short": "BUCC",
+        "logo": "assets/logos/bucc.png",
+        "roles": [
+          "General Secretary · 2026"
+        ],
+        "description": "The university's computing community: programming, tech events and learning together.",
+        "facebook": "https://www.facebook.com/BRACUCC",
+        "website": ""
+      },
+      {
+        "name": "BRAC University",
+        "short": "BRACU",
+        "logo": "",
+        "roles": [
+          "B.Sc. in CSE · Currently pursuing",
+          "Machine Learning Instructor · 2026"
+        ],
+        "description": "My university in Dhaka, where I study computer science and engineering.",
+        "facebook": "https://www.facebook.com/BRACUniversity",
+        "website": "https://www.bracu.ac.bd"
+      }
+    ]
+  }
 };

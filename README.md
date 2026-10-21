@@ -43,7 +43,7 @@ The admin panel is protected by a **login ID and password**. GitHub Pages is sta
 
 **Security notes:** use a long, unique password, because `vault.js` is public and the password is the only lock. After 5 wrong tries the form slows down. Revoke the token on GitHub if you ever suspect a leak.
 
-**What you can do:** edit name, intro, photos, links, bio, skills; add/reorder/delete Books, Research and Courses with image upload; write blog posts and reviews (Markdown, cover image, rating, draft mode); edit blog categories.
+**What you can do:** edit the Education tab (academics, achievements, clubs with logos and Facebook links); edit name, intro, photos, links, bio, skills; add/reorder/delete Books, Research and Courses with image upload; write blog posts and reviews (Markdown, cover image, rating, draft mode); edit blog categories.
 
 ## Editing by hand
 
@@ -52,3 +52,7 @@ The admin panel is protected by a **login ID and password**. GitHub Pages is sta
 ## Test locally
 
 Just open `index.html` in a browser. (The admin panel's GitHub features need the site to be online or any browser with internet access.)
+
+## Education tab: adding the BRAC University logo
+
+The BRACU card shows a "BRACU" badge until a logo is set. Save the logo as `assets/logos/bracu.png`, then in the admin open **Education → Clubs & communities → BRAC University** and set **Logo** to `assets/logos/bracu.png` (or upload it there).

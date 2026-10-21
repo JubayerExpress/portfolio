@@ -34,6 +34,7 @@
     <nav id="menu" aria-label="Main">
       <a href="#home" data-link>Home</a>
       <a href="#about" data-link>About</a>
+      <a href="#education" data-link>Education</a>
       <a href="#books" data-link>Books</a>
       <a href="#research" data-link>Research</a>
       <a href="#courses" data-link>Courses</a>
@@ -73,10 +74,11 @@
       </div>
       <div class="wrap explore">
         <a class="tile reveal" href="#about"><span class="tile-ic">01</span><h3 data-scr>About</h3><p>Who I am and what I do.</p><i>→</i></a>
-        <a class="tile reveal" href="#books"><span class="tile-ic">02</span><h3 data-scr>Books</h3><p>Literature and writing.</p><i>→</i></a>
-        <a class="tile reveal" href="#research"><span class="tile-ic">03</span><h3 data-scr>Research</h3><p>Papers and projects.</p><i>→</i></a>
-        <a class="tile reveal" href="#courses"><span class="tile-ic">04</span><h3 data-scr>Courses</h3><p>Lectures on their own sites.</p><i>→</i></a>
-        <a class="tile reveal wide" href="#blog"><span class="tile-ic">05</span><h3 data-scr>Blog &amp; Reviews</h3><p>Education, books, movies, games and more.</p><i>→</i></a>
+        <a class="tile reveal" href="#education"><span class="tile-ic">02</span><h3 data-scr>Education</h3><p>Studies, achievements and clubs.</p><i>→</i></a>
+        <a class="tile reveal" href="#books"><span class="tile-ic">03</span><h3 data-scr>Books</h3><p>Literature and writing.</p><i>→</i></a>
+        <a class="tile reveal" href="#research"><span class="tile-ic">04</span><h3 data-scr>Research</h3><p>Papers and projects.</p><i>→</i></a>
+        <a class="tile reveal" href="#courses"><span class="tile-ic">05</span><h3 data-scr>Courses</h3><p>Lectures on their own sites.</p><i>→</i></a>
+        <a class="tile reveal" href="#blog"><span class="tile-ic">06</span><h3 data-scr>Blog &amp; Reviews</h3><p>Education, books, movies, games and more.</p><i>→</i></a>
       </div>
     </section>
 
@@ -98,10 +100,32 @@
       </div>
     </section>
 
+    <!-- EDUCATION -->
+    <section id="education" class="section">
+      <div class="wrap">
+        <h2 class="title reveal"><span>02</span> <b data-scr>Education</b></h2>
+        <p class="section-lead reveal" id="eduLead"></p>
+        <div class="edu-top">
+          <div class="edu-col">
+            <h4 class="sub reveal">Academics</h4>
+            <div class="timeline" id="eduList"></div>
+          </div>
+          <div class="edu-col">
+            <h4 class="sub reveal">By the numbers</h4>
+            <div class="hl-grid" id="eduHl"></div>
+          </div>
+        </div>
+        <h4 class="sub reveal edu-gap">Key achievements</h4>
+        <div class="cards ach-grid" id="achGrid"></div>
+        <h4 class="sub reveal edu-gap">Clubs &amp; communities</h4>
+        <div class="cards comm-grid" id="commGrid"></div>
+      </div>
+    </section>
+
     <!-- BOOKS -->
     <section id="books" class="section alt">
       <div class="wrap">
-        <h2 class="title reveal"><span>02</span> <b data-scr>Books</b></h2>
+        <h2 class="title reveal"><span>03</span> <b data-scr>Books</b></h2>
         <p class="section-lead reveal">Stories, poems and essays I have written.</p>
         <div class="cards" id="booksGrid"></div>
       </div>
@@ -110,7 +134,7 @@
     <!-- RESEARCH -->
     <section id="research" class="section">
       <div class="wrap">
-        <h2 class="title reveal"><span>03</span> <b data-scr>Research</b></h2>
+        <h2 class="title reveal"><span>04</span> <b data-scr>Research</b></h2>
         <p class="section-lead reveal">Papers, theses and projects.</p>
         <div class="timeline" id="researchList"></div>
       </div>
@@ -119,7 +143,7 @@
     <!-- COURSES -->
     <section id="courses" class="section alt">
       <div class="wrap">
-        <h2 class="title reveal"><span>04</span> <b data-scr>Courses</b></h2>
+        <h2 class="title reveal"><span>05</span> <b data-scr>Courses</b></h2>
         <p class="section-lead reveal">Each course lives on its own website. Jump straight in.</p>
         <div class="cards" id="coursesGrid"></div>
       </div>
@@ -128,7 +152,7 @@
     <!-- BLOG -->
     <section id="blog" class="section">
       <div class="wrap">
-        <h2 class="title reveal"><span>05</span> <b data-scr>Blog</b></h2>
+        <h2 class="title reveal"><span>06</span> <b data-scr>Blog</b></h2>
         <p class="section-lead reveal">Learning notes, reviews and random thoughts.</p>
         <div class="filters reveal" id="filters" role="tablist" aria-label="Blog categories"></div>
         <div class="cards" id="postsGrid"></div>
@@ -139,7 +163,7 @@
     <!-- CONTACT -->
     <section id="contact" class="section alt">
       <div class="wrap contact">
-        <h2 class="title reveal"><span>06</span> <b data-scr>Contact</b></h2>
+        <h2 class="title reveal"><span>07</span> <b data-scr>Contact</b></h2>
         <p class="big reveal">Let's talk about <em>code</em>, <em>space</em> or <em>stories</em>.</p>
         <a class="btn primary mag reveal" id="mailBtn" href="#">Say hello</a>
         <div class="socials reveal" id="socials"></div>

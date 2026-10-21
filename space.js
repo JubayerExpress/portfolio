@@ -215,7 +215,7 @@
 
   /* ---------------- HUD ---------------- */
   var hudAlt = $("hudAlt"), hudSec = $("hudSec"), hudClock = $("hudClock");
-  var secIds = ["home", "about", "books", "research", "courses", "blog", "contact"];
+  var secIds = ["home", "about", "education", "books", "research", "courses", "blog", "contact"];
   var secEls = secIds.map($), shownAlt = 0, clockT = 0;
   function hudTick() {
     if (!hudAlt) return;

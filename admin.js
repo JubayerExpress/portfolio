@@ -80,6 +80,7 @@
     d.roles = d.roles || []; d.ticker = d.ticker || []; d.socials = d.socials || [];
     d.about = d.about || {}; d.about.paragraphs = d.about.paragraphs || []; d.about.facts = d.about.facts || []; d.about.skills = d.about.skills || [];
     d.books = d.books || []; d.research = d.research || []; d.courses = d.courses || [];
+    d.education = d.education || {}; ["schooling", "highlights", "achievements", "communities"].forEach(function (k) { d.education[k] = d.education[k] || []; });
     d.blog = d.blog || {}; d.blog.categories = d.blog.categories || ["Education", "Book Reviews", "Movie Reviews", "Game Reviews", "Thoughts"];
     d.posts = d.posts || [];
     return d;
@@ -342,7 +343,7 @@
   /* ---------- tabs ---------- */
   var TABS = [
     ["general", "General"], ["about", "About"], ["books", "Books"],
-    ["research", "Research"], ["courses", "Courses"], ["posts", "Blog posts"], ["account", "Account"]
+    ["education", "Education"], ["research", "Research"], ["courses", "Courses"], ["posts", "Blog posts"], ["account", "Account"]
   ];
   function renderTabs() {
     var nav = $("tabs"); nav.textContent = "";
@@ -361,6 +362,7 @@
     else if (tab === "general") kids = panelGeneral();
     else if (tab === "about") kids = panelAbout();
     else if (tab === "books") kids = panelBooks();
+    else if (tab === "education") kids = panelEducation();
     else if (tab === "research") kids = panelResearch();
     else if (tab === "courses") kids = panelCourses();
     else if (tab === "posts") kids = panelPosts();
@@ -447,6 +449,31 @@
         { k: "tags", t: "tags", l: "Tags" }, { k: "link", t: "text", l: "Link (buy / read / download)" }, { k: "linkText", t: "text", l: "Button text" },
         { k: "image", t: "image", l: "Cover image", wide: true }
       ], { title: function (b) { return b.title || "Untitled book"; }, blank: function () { return { title: "New book", year: today().slice(0, 4), blurb: "", tags: [], link: "", linkText: "Read more", image: "" }; }, add: "+ Add book", addFirst: true }))
+    ]);
+  }
+  function panelEducation() {
+    var E = D.education;
+    return head("Education", "Studies, key achievements and the clubs you belong to. Logos: upload an image, or type a path like assets/logos/bracu.png.").concat([
+      card("Intro line", fieldGrid(E, [{ k: "intro", t: "textarea", l: "Short intro under the heading", wide: true }])),
+      card("Academics (newest first)", listEditor(E.schooling, [
+        { k: "title", t: "text", l: "Degree / certificate" }, { k: "institution", t: "text", l: "Institution" },
+        { k: "year", t: "text", l: "Year (type Now if ongoing)" }, { k: "status", t: "text", l: "Badge (e.g. Board scholarship)" },
+        { k: "note", t: "textarea", l: "Note", wide: true }
+      ], { title: function (x) { return x.title || "Untitled"; }, blank: function () { return { title: "New qualification", institution: "", year: today().slice(0, 4), note: "", status: "" }; }, add: "+ Add qualification", addFirst: true })),
+      card("By the numbers (big stat cards)", listEditor(E.highlights, [
+        { k: "n", t: "text", l: "Big text (e.g. 600/600)" }, { k: "l", t: "text", l: "Caption" }
+      ], { title: function (x) { return (x.n || "") + " " + (x.l || ""); }, blank: function () { return { n: "", l: "" }; }, add: "+ Add stat" })),
+      card("Key achievements & roles", listEditor(E.achievements, [
+        { k: "icon", t: "text", l: "Emoji icon" }, { k: "year", t: "text", l: "Year" },
+        { k: "title", t: "text", l: "Title / role", wide: true }, { k: "org", t: "text", l: "Organization / event", wide: true }
+      ], { title: function (x) { return (x.year ? x.year + " · " : "") + (x.title || "Untitled"); }, blank: function () { return { icon: "🏆", title: "New achievement", org: "", year: today().slice(0, 4) }; }, add: "+ Add achievement", addFirst: true })),
+      card("Clubs & communities (logo + Facebook)", listEditor(E.communities, [
+        { k: "name", t: "text", l: "Full name" }, { k: "short", t: "text", l: "Short name (ROBU, BUCC...)" },
+        { k: "roles", t: "lines", l: "Your roles (one per line)", wide: true, rows: 3 },
+        { k: "description", t: "textarea", l: "Description", wide: true },
+        { k: "facebook", t: "text", l: "Facebook page link" }, { k: "website", t: "text", l: "Website link (optional)" },
+        { k: "logo", t: "image", l: "Logo", wide: true }
+      ], { title: function (x) { return x.name || "Untitled"; }, blank: function () { return { name: "New club", short: "", roles: [], description: "", facebook: "https://", website: "", logo: "" }; }, add: "+ Add club" }))
     ]);
   }
   function panelResearch() {
