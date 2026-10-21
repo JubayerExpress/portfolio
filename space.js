@@ -30,7 +30,7 @@
     H = cv.height = Math.floor(innerHeight * DPR);
     var n = Math.min(260, Math.floor(innerWidth * innerHeight / 5200));
     dust = [];
-    for (var d = 0; d < (innerWidth < 700 ? 9 : 20); d++) {
+    for (var d = 0; d < (innerWidth < 700 ? 5 : 10); d++) {
       dust.push({ x: rnd(), y: rnd(), z: 0.3 + rnd() * 0.7, r: (60 + rnd() * 130) * DPR, s: sprites[(rnd() * sprites.length) | 0], sp: 0.004 + rnd() * 0.012, ph: rnd() * 6.28, a: 0.35 + rnd() * 0.5 });
     }
     stars = [];
@@ -39,7 +39,7 @@
       stars.push({
         x: rnd(), y: rnd(), z: z,
         r: (0.4 + rnd() * 1.1) * z * DPR + 0.3,
-        ph: rnd() * 6.28, sp: 0.6 + rnd() * 2.2,
+        ph: rnd() * 6.28, sp: 0.4 + rnd() * 1.1,
         c: tints[(rnd() * tints.length) | 0],
         flare: rnd() < 0.07
       });
@@ -57,7 +57,7 @@
       life: 1, len: 90 + rnd() * 120
     });
   }
-  var nextShoot = 1800;
+  var nextShoot = 6000;
 
   var t0 = performance.now(), last = t0;
   function frame(now) {
@@ -70,7 +70,7 @@
     vel += (dScroll - vel) * (1 - Math.exp(-raw / 90));
     if (Math.abs(dScroll) < 0.5) vel *= Math.exp(-raw / 120);
     mx += (tmx - mx) * 0.06; my += (tmy - my) * 0.06;
-    if (warp > 0) warp = Math.max(0, warp - raw / 2400);
+    if (warp > 0) warp = Math.max(0, warp - raw / 1500);
     var w = warp * warp;                  // ease-out deceleration
 
     ctx.clearRect(0, 0, W, H);
@@ -86,12 +86,11 @@
       }
       ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
     }
-    var streakV = (Math.abs(vel) < 1.5 ? 0 : Math.max(-40, Math.min(40, vel))) * DPR;
 
     for (var i = 0; i < stars.length; i++) {
       var s = stars[i];
       var px = s.x * W + mx * s.z * 46 * DPR;
-      var py = (((s.y * H - scrollY * DPR * s.z * 0.22 + my * s.z * 30 * DPR) % H) + H) % H;
+      var py = (((s.y * H - scrollY * DPR * s.z * 0.08 + my * s.z * 30 * DPR) % H) + H) % H;
       var tw = 0.55 + 0.45 * Math.sin(t * s.sp + s.ph);
       var a = (0.35 + 0.65 * s.z) * tw;
       var col = light ? "70,70,150" : s.c;
@@ -101,14 +100,14 @@
       sx[i] = px; sy[i] = py;
       var dx = px - cx, dy = py - cy;
       var wl = w * s.z * 0.55;            // warp streak length factor
-      var sv = streakV * s.z * 0.9;
+      var sv = 0; // scroll streaks removed
 
-      if (wl > 0.01 || Math.abs(sv) > 3) {
+      if (wl > 0.01) {
         ctx.lineWidth = s.r * (1 + w * 0.6);
         ctx.lineCap = "round";
         ctx.beginPath();
         ctx.moveTo(px, py);
-        ctx.lineTo(px - dx * wl, py - dy * wl - sv * 1.1);
+        ctx.lineTo(px - dx * wl, py - dy * wl);
         ctx.stroke();
       } else {
         ctx.beginPath(); ctx.arc(px, py, s.r, 0, 6.283); ctx.fill();
@@ -140,7 +139,7 @@
     // shooting stars
     if (!reduce) {
       nextShoot -= dt;
-      if (nextShoot <= 0 && !light) { spawnShooter(); nextShoot = 2800 + rnd() * 5200; }
+      if (nextShoot <= 0 && !light) { spawnShooter(); nextShoot = 9000 + rnd() * 9000; }
       for (var k = shooters.length - 1; k >= 0; k--) {
         var m = shooters[k];
         m.x += m.vx; m.y += m.vy; m.life -= 0.012;
@@ -289,15 +288,15 @@
   if (!reduce) {
     var lx = -1, ly = -1;
     if (fine) addEventListener("pointermove", function (e) {
-      if (lx >= 0 && Math.hypot(e.clientX - lx, e.clientY - ly) < 9) return;
+      if (lx >= 0 && Math.hypot(e.clientX - lx, e.clientY - ly) < 18) return;
       lx = e.clientX; ly = e.clientY;
       emit(lx + (rnd() - 0.5) * 6, ly + (rnd() - 0.5) * 6, { vx: (rnd() - 0.5) * 0.7, vy: (rnd() - 0.5) * 0.7 + 0.2, size: 1.2 + rnd() * 1.6, decay: 0.035 });
     }, { passive: true });
 
     addEventListener("pointerdown", function (e) {
-      ring(e.clientX, e.clientY, "#22d3ee"); ring(e.clientX, e.clientY, "#ff6bcb", 2);
-      for (var i = 0; i < 22; i++) {
-        var a = rnd() * 6.283, sp = 1.2 + rnd() * 4.2;
+      ring(e.clientX, e.clientY, "#22d3ee");
+      for (var i = 0; i < 12; i++) {
+        var a = rnd() * 6.283, sp = 1.2 + rnd() * 3;
         emit(e.clientX, e.clientY, { vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, size: 1.4 + rnd() * 1.8, decay: 0.022 + rnd() * 0.015, star: i % 3 === 0 });
       }
     });
@@ -357,7 +356,7 @@
   /* ---------------- Galaxy swirl + fly-bys ---------------- */
   var neb = document.querySelector(".nebula");
   if (neb) { var gx = document.createElement("i"); gx.className = "galaxy"; neb.appendChild(gx); }
-  [["🛰️", "sat", "52s", "7s"], ["🛸", "ufo", "74s", "26s"], ["☄️", "comet", "38s", "14s"]].forEach(function (f) {
+  [["🛰️", "sat", "95s", "20s"]].forEach(function (f) {
     var el = document.createElement("div");
     el.className = "flyby " + f[1]; el.setAttribute("aria-hidden", "true");
     el.style.setProperty("--dur", f[2]); el.style.setProperty("--dl", f[3]);

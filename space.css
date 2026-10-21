@@ -17,9 +17,9 @@
 #fx{position:fixed;inset:0;z-index:190;width:100%;height:100%;pointer-events:none}
 .nebula{position:fixed;inset:0;z-index:-4;overflow:hidden;pointer-events:none}
 .nebula i{position:absolute;border-radius:50%;opacity:.55;will-change:transform}
-.nebula .n1{width:62vw;height:62vw;left:-18vw;top:-22vw;background:radial-gradient(circle,#5b3df5,transparent 68%);animation:drift1 38s ease-in-out infinite alternate}
-.nebula .n2{width:54vw;height:54vw;right:-20vw;top:22vh;background:radial-gradient(circle,#0fb6d6,transparent 68%);opacity:.38;animation:drift2 46s ease-in-out infinite alternate}
-.nebula .n3{width:58vw;height:58vw;left:18vw;bottom:-30vw;background:radial-gradient(circle,#d4359b,transparent 68%);opacity:.34;animation:drift3 52s ease-in-out infinite alternate}
+.nebula .n1{width:62vw;height:62vw;left:-18vw;top:-22vw;background:radial-gradient(circle,#5b3df5,transparent 68%);animation:drift1 70s ease-in-out infinite alternate}
+.nebula .n2{width:54vw;height:54vw;right:-20vw;top:22vh;background:radial-gradient(circle,#0fb6d6,transparent 68%);opacity:.38;animation:drift2 80s ease-in-out infinite alternate}
+.nebula .n3{width:58vw;height:58vw;left:18vw;bottom:-30vw;background:radial-gradient(circle,#d4359b,transparent 68%);opacity:.34;animation:drift3 90s ease-in-out infinite alternate}
 @keyframes drift1{to{transform:translate(14vw,12vh) scale(1.2)}}
 @keyframes drift2{to{transform:translate(-16vw,-10vh) scale(1.15) rotate(40deg)}}
 @keyframes drift3{to{transform:translate(-12vw,-14vh) scale(1.25)}}
@@ -101,7 +101,7 @@
 /* timeline = fibre-optic line with travelling light */
 .timeline::before{background:linear-gradient(var(--a),var(--b),transparent);box-shadow:0 0 12px var(--a)}
 .timeline::after{content:"";position:absolute;left:4px;top:6px;width:6px;height:70px;border-radius:6px;
-  background:linear-gradient(transparent,#fff,var(--b),transparent);filter:blur(1px);animation:beam 5.5s ease-in infinite}
+  background:linear-gradient(transparent,#fff,var(--b),transparent);filter:blur(1px);animation:beam 10s ease-in infinite}
 @keyframes beam{0%{top:0;opacity:0}15%{opacity:1}100%{top:calc(100% - 70px);opacity:0}}
 .t-item::before{animation:node 2.8s ease-out infinite}
 @keyframes node{0%{box-shadow:0 0 0 0 rgba(34,211,238,.6)}100%{box-shadow:0 0 0 14px rgba(34,211,238,0)}}
@@ -195,7 +195,7 @@
 .galaxy{position:absolute;left:72%;top:34%;width:150vmax;height:150vmax;margin:-75vmax 0 0 -75vmax;opacity:.85;
   background:conic-gradient(from 0deg,transparent 0%,rgba(124,92,255,.30) 7%,transparent 17%,rgba(34,211,238,.22) 31%,transparent 43%,rgba(255,107,203,.26) 57%,transparent 69%,rgba(124,92,255,.28) 82%,transparent 100%);
   -webkit-mask-image:radial-gradient(circle,transparent 0,transparent 6%,rgba(0,0,0,.5) 16%,rgba(0,0,0,.5) 28%,transparent 56%);mask-image:radial-gradient(circle,transparent 0,transparent 6%,rgba(0,0,0,.5) 16%,rgba(0,0,0,.5) 28%,transparent 56%);
-  animation:spin 260s linear infinite;will-change:transform}
+  animation:spin 400s linear infinite;will-change:transform}
 :root[data-theme="light"] .galaxy{opacity:.28}
 
 /* magic-line nav pill */
@@ -212,9 +212,9 @@
 
 /* shimmering titles */
 .title b{background:linear-gradient(100deg,var(--text) 40%,var(--b) 49%,var(--c) 52%,var(--text) 61%);background-size:260% 100%;
-  -webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 7s ease-in-out infinite}
+  -webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 14s ease-in-out infinite}
 @keyframes shine{0%,35%{background-position:120% 0}70%,100%{background-position:-60% 0}}
-.title span{animation:flick 5s steps(1) infinite}
+.title span{animation:none}
 @keyframes flick{0%,92%,96%,100%{opacity:1}94%,98%{opacity:.35}}
 
 /* hero text / role polish */
@@ -224,25 +224,25 @@
 .lead::before{content:"";position:absolute;left:-18px;top:6px;bottom:6px;width:2px;border-radius:2px;background:linear-gradient(var(--b),var(--a),transparent);box-shadow:0 0 10px var(--b)}
 
 /* chips: gentle wave */
-.chips .chip{animation:chipwave 6s ease-in-out infinite}
+.chips .chip{animation:none}
 .chips .chip:nth-child(3n+2){animation-delay:-2s}
 .chips .chip:nth-child(3n){animation-delay:-4s}
 @keyframes chipwave{50%{transform:translateY(-3px)}}
 .chips .chip:hover{animation-play-state:paused}
 
 /* animated gradient covers + shine sweep on every card cover */
-.cover{background-size:220% 220%!important;animation:flow 9s ease infinite;position:relative}
+.cover{position:relative}
 .cover::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.28) 50%,transparent 65%);
   transform:translateX(-120%);transition:transform .9s cubic-bezier(.2,.7,.2,1);pointer-events:none}
 .card:hover .cover::after{transform:translateX(120%)}
 
 /* tiles: breathing arrow + glowing number */
-.tile i{animation:nudge 2.4s ease-in-out infinite}
+.tile i{animation:none}
 @keyframes nudge{50%{transform:translateX(5px)}}
 .tile:hover .tile-ic{text-shadow:0 0 14px var(--b)}
 
 /* flat-out showing off: stat numbers pulse softly */
-.stat b{animation:statglow 4s ease-in-out infinite}
+.stat b{animation:none}
 @keyframes statglow{50%{text-shadow:0 0 30px rgba(124,92,255,.9)}}
 
 /* fly-bys (satellite, UFO, comet) */
