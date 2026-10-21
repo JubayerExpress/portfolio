@@ -170,9 +170,6 @@ window.SITE = {
   "blog": {
     "categories": [
       "Education",
-      "Book Reviews",
-      "Movie Reviews",
-      "Game Reviews",
       "Thoughts"
     ]
   },
