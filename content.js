@@ -12,7 +12,7 @@ window.SITE = {
   ],
   "intro": "CSE undergrad, robotics enthusiast and tech wizard who also loves literature. I build with AI and code, chase big ideas about space and stories, and write about them here.",
   "email": "jubayergmjz1@gmail.com",
-  "heroImage": "assets/me.jpg",
+  "heroImage": "assets/uploads/1792610584845-jubayer-hd.jpg",
   "ticker": [
     "Code",
     "Robotics",
