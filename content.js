@@ -299,7 +299,7 @@ window.SITE = {
       {
         "name": "BRAC University",
         "short": "BRACU",
-        "logo": "",
+        "logo": "assets/uploads/1792640767686-images.jpg",
         "roles": [
           "B.Sc. in CSE · Currently pursuing",
           "Machine Learning Instructor · 2026"
