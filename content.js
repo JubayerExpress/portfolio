@@ -16,7 +16,7 @@ window.SITE = {
     "goatcounter": "",
     "showCounter": true
   },
-  "heroImage": "assets/me.jpg",
+  "heroImage": "assets/uploads/1794047800630-jubayer-hd-1.jpg",
   "ticker": [
     "Code",
     "Robotics",
