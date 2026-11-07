@@ -83,7 +83,7 @@
     d.education = d.education || {}; ["schooling", "highlights", "achievements", "communities"].forEach(function (k) { d.education[k] = d.education[k] || []; });
     d.blog = d.blog || {}; d.blog.categories = d.blog.categories || ["Education", "Book Reviews", "Movie Reviews", "Game Reviews", "Thoughts"];
     d.posts = d.posts || [];
-    d.analytics = d.analytics || {}; if (d.analytics.goatcounter == null) d.analytics.goatcounter = "";
+    d.analytics = d.analytics || {}; if (d.analytics.goatcounter == null) d.analytics.goatcounter = ""; if (d.analytics.showCounter == null) d.analytics.showCounter = true;
     return d;
   }
   function loadRemote() {
@@ -437,7 +437,7 @@
   function panelVisitors() {
     var code = gcCode();
     var settings = card("Settings", h("div", null, [
-      fieldGrid(D.analytics, [{ k: "goatcounter", t: "text", l: "GoatCounter code", wide: true, help: "Only the code, e.g. jubayer for jubayer.goatcounter.com. Leave empty to turn counting off. Press Save to GitHub after changing it." }]),
+      fieldGrid(D.analytics, [{ k: "goatcounter", t: "text", l: "GoatCounter code", wide: true, help: "Only the code, e.g. jubayer for jubayer.goatcounter.com. Leave empty to turn counting off. Press Save to GitHub after changing it." }, { k: "showCounter", t: "bool", l: "Show the visitor count on the home page", wide: true }]),
       h("div", { class: "row", style: "margin-top:14px" }, [
         h("button", { class: "btn s", type: "button", onclick: function () { renderPanel(); } }, "Apply & refresh"),
         (function () {

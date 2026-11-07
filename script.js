@@ -129,10 +129,60 @@
       "</div></article>";
   }).join("");
 
+  /* ---------- Contact icons (hero row + contact section) ---------- */
+  var ICONS = {
+    mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></svg>',
+    github: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.38c.6.12.83-.26.83-.57l-.01-2.04c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18a4.65 4.65 0 0 1 1.23 3.22c0 4.61-2.8 5.63-5.48 5.92.43.37.81 1.1.81 2.22l-.01 3.29c0 .32.22.69.82.57A12 12 0 0 0 12 .3"/></svg>',
+    linkedin: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>',
+    youtube: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.19a3.02 3.02 0 0 0-2.12-2.14C19.5 3.55 12 3.55 12 3.55s-7.5 0-9.38.5A3.02 3.02 0 0 0 .5 6.19C0 8.07 0 12 0 12s0 3.93.5 5.81a3.02 3.02 0 0 0 2.12 2.14c1.88.5 9.38.5 9.38.5s7.5 0 9.38-.5a3.02 3.02 0 0 0 2.12-2.14C24 15.93 24 12 24 12s0-3.93-.5-5.81zM9.55 15.57V8.43L15.82 12l-6.27 3.57z"/></svg>',
+    facebook: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.07C24 5.44 18.63.07 12 .07S0 5.44 0 12.07c0 5.99 4.39 10.95 10.13 11.85v-8.38H7.08v-3.47h3.05V9.43c0-3.01 1.79-4.67 4.53-4.67 1.31 0 2.69.23 2.69.23v2.95h-1.51c-1.49 0-1.96.93-1.96 1.87v2.26h3.33l-.53 3.47h-2.8v8.38C19.61 23.02 24 18.06 24 12.07z"/></svg>',
+    link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5"/><path d="M14 10a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5"/></svg>'
+  };
+  function iconFor(s) {
+    var t = ((s.label || "") + " " + (s.url || "")).toLowerCase();
+    if (/^mailto:/.test(s.url || "") || /\bmail\b|email/.test(t)) return "mail";
+    var keys = ["github", "linkedin", "youtube", "facebook"];
+    for (var i = 0; i < keys.length; i++) if (t.indexOf(keys[i]) >= 0) return keys[i];
+    return "link";
+  }
+  // A link like "https://facebook.com/" is a placeholder (no profile yet), so it is not shown up top.
+  function isReal(u) { var m = String(u || "").match(/^https?:\/\/[^\/]+\/?(.*)$/i); return !m || m[1].replace(/[\/?#]/g, "").length > 0; }
+  var heroOrder = { mail: 0, github: 1, linkedin: 2 };
+  var links = (S.email ? [{ label: "Email", url: "mailto:" + S.email, tip: "Email me" }] : [])
+    .concat((S.socials || []).filter(function (s) { return s.url && isReal(s.url); }))
+    .map(function (s, i) { var k = iconFor(s); return { s: s, k: k, o: k in heroOrder ? heroOrder[k] : 10 + i }; })
+    .sort(function (a, b) { return a.o - b.o; });
+  $("heroLinks").innerHTML = links.map(function (x) {
+    var tip = x.s.tip || x.s.label;
+    return '<a class="sl" ' + linkAttrs(x.s.url) + ' aria-label="' + esc(tip) + '" data-tip="' + esc(tip) + '">' + ICONS[x.k] + "</a>";
+  }).join("");
+
   $("mailBtn").href = "mailto:" + (S.email || "");
   $("socials").innerHTML = (S.socials || []).map(function (s) {
-    return "<a " + linkAttrs(s.url) + ">" + esc(s.label) + "</a>";
+    return "<a " + linkAttrs(s.url) + ">" + ICONS[iconFor(s)] + esc(s.label) + "</a>";
   }).join("");
+
+  /* ---------- Public visitor counter ---------- */
+  (function () {
+    var A = S.analytics || {};
+    if (!gcCode || A.showCounter === false) return;
+    fetch("https://" + gcCode + ".goatcounter.com/counter/TOTAL.json", { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        var n = j ? parseInt(String(j.count || "").replace(/\D/g, ""), 10) : 0;
+        if (!n) return;   // nothing to show yet, or counts not public
+        var out = $("visitCount"), badge = $("visitBadge");
+        badge.hidden = false;
+        if (reduce) { out.textContent = n.toLocaleString(); return; }
+        var t0 = performance.now(), dur = 1400;
+        (function step(now) {
+          var k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+          out.textContent = Math.round(n * e).toLocaleString();
+          if (k < 1) requestAnimationFrame(step);
+        })(t0);
+      })
+      .catch(function () {});
+  })();
 
   /* ---------- Blog ---------- */
   var posts = (S.posts || []).filter(function (p) { return !p.draft; })

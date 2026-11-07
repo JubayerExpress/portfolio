@@ -53,7 +53,11 @@ Visits are counted by [GoatCounter](https://www.goatcounter.com) (free, no cooki
 2. In GoatCounter **Settings**, tick **Allow adding visitor counts on your website** and save.
 3. In the admin open **Visitors**, type the code, press **Save to GitHub**.
 
-The Visitors tab then shows visitors today / last 7 days / last 30 days / all time, and views per blog post. Use **Don't count my own visits on this browser** so your own checks don't inflate the numbers. Countries, devices and referrers are on your GoatCounter dashboard.
+The home page shows a live visitor count next to the contact icons (turn it off in Visitors → Settings). The Visitors tab shows visitors today / last 7 days / last 30 days / all time, and views per blog post. Use **Don't count my own visits on this browser** so your own checks don't inflate the numbers. Countries, devices and referrers are on your GoatCounter dashboard.
+
+## Contact icons on the home page
+
+Under the hero buttons there is a row of round icons: Email first, then GitHub, LinkedIn and your other links from **General → Social links**. Icons are picked automatically from the link (GitHub, LinkedIn, YouTube, Facebook; anything else gets a link icon). A link with no profile path, like `https://facebook.com/`, is treated as a placeholder and hidden from this row.
 
 ## Editing by hand
 
