@@ -20,6 +20,26 @@
     "linear-gradient(135deg,#f59e0b,#ff6bcb)"
   ];
   var catEmoji = { "Education": "🎓", "Book Reviews": "📚", "Movie Reviews": "🎬", "Game Reviews": "🎮", "Thoughts": "💭" };
+
+  /* ---------- Visitor counting (GoatCounter: free, no cookies) ----------
+     Off until a code is set in Admin → Visitors. Counts each visit, plus each blog post
+     opened (as /post/<id>) so the admin can show views per post. */
+  var gcCode = String((S.analytics && S.analytics.goatcounter) || "").trim().toLowerCase();
+  var gcQueue = [], gcSeen = {};
+  function gcReady() { return !!(window.goatcounter && window.goatcounter.count); }
+  if (/^[a-z0-9][a-z0-9-]*$/.test(gcCode)) {
+    var gs = document.createElement("script");
+    gs.async = true; gs.src = "https://gc.zgo.at/count.js";
+    gs.setAttribute("data-goatcounter", "https://" + gcCode + ".goatcounter.com/count");
+    gs.onload = function () { var q = gcQueue; gcQueue = []; if (gcReady()) q.forEach(function (v) { window.goatcounter.count(v); }); };
+    document.head.appendChild(gs);
+  } else gcCode = "";
+  function trackPost(p) {
+    if (!gcCode || gcSeen[p.id]) return;   // once per post per visit
+    gcSeen[p.id] = 1;
+    var v = { path: "/post/" + p.id, title: p.title, event: false };
+    if (gcReady()) window.goatcounter.count(v); else gcQueue.push(v);
+  }
   function img(src, alt) { return src ? '<img src="' + esc(safe(src)) + '" alt="' + esc(alt || "") + '" loading="lazy">' : ""; }
   function stars(n) {
     n = Math.max(0, Math.min(5, Math.round(+n || 0)));
@@ -170,6 +190,7 @@
     document.title = p.title + " — " + (S.name || "");
     reader.hidden = false; reader.scrollTop = 0;
     document.body.classList.add("lock");
+    trackPost(p);
   }
   function closeReader(silent) {
     reader.hidden = true;

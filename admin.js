@@ -83,6 +83,7 @@
     d.education = d.education || {}; ["schooling", "highlights", "achievements", "communities"].forEach(function (k) { d.education[k] = d.education[k] || []; });
     d.blog = d.blog || {}; d.blog.categories = d.blog.categories || ["Education", "Book Reviews", "Movie Reviews", "Game Reviews", "Thoughts"];
     d.posts = d.posts || [];
+    d.analytics = d.analytics || {}; if (d.analytics.goatcounter == null) d.analytics.goatcounter = "";
     return d;
   }
   function loadRemote() {
@@ -342,7 +343,7 @@
 
   /* ---------- tabs ---------- */
   var TABS = [
-    ["general", "General"], ["about", "About"], ["books", "Books"],
+    ["visitors", "Visitors"], ["general", "General"], ["about", "About"], ["books", "Books"],
     ["education", "Education"], ["research", "Research"], ["courses", "Courses"], ["posts", "Blog posts"], ["account", "Account"]
   ];
   function renderTabs() {
@@ -359,6 +360,7 @@
     if (tab !== "account" && !D) { tab = "account"; renderTabs(); }
     var kids = [];
     if (tab === "account") kids = panelAccount();
+    else if (tab === "visitors") kids = panelVisitors();
     else if (tab === "general") kids = panelGeneral();
     else if (tab === "about") kids = panelAbout();
     else if (tab === "books") kids = panelBooks();
@@ -411,6 +413,95 @@
         h("li", null, "Pick a strong, unique password: the encrypted file is public, so the password is the only lock."),
         h("li", null, "Forgot the password? Make a new GitHub token, delete vault.js from the repo, and open admin.html to run the setup again.")
       ]))
+    ]);
+  }
+
+  /* ---------- visitors (GoatCounter) ---------- */
+  function gcCode() { return String((D.analytics && D.analytics.goatcounter) || "").trim().toLowerCase(); }
+  function gcValid(c) { return /^[a-z0-9][a-z0-9-]*$/.test(c); }
+  function ymd(back) {
+    var d = new Date(); d.setDate(d.getDate() - back);
+    var p2 = function (n) { return (n < 10 ? "0" : "") + n; };
+    return d.getFullYear() + "-" + p2(d.getMonth() + 1) + "-" + p2(d.getDate());
+  }
+  // Reads GoatCounter's public counter. A path with no visits yet answers 404, which means 0.
+  function gcGet(path, query) {
+    var url = "https://" + gcCode() + ".goatcounter.com/counter/" + encodeURIComponent(path) + ".json" + (query ? "?" + query : "");
+    return fetch(url, { cache: "no-store" }).then(function (r) {
+      if (r.status === 404) return 0;
+      if (!r.ok) { var e = new Error("GoatCounter answered " + r.status); e.status = r.status; throw e; }
+      return r.json().then(function (j) { return parseInt(String(j.count || "0").replace(/\D/g, ""), 10) || 0; });
+    });
+  }
+  function skipOwn() { try { return localStorage.getItem("skipgc") === "t"; } catch (e) { return false; } }
+  function panelVisitors() {
+    var code = gcCode();
+    var settings = card("Settings", h("div", null, [
+      fieldGrid(D.analytics, [{ k: "goatcounter", t: "text", l: "GoatCounter code", wide: true, help: "Only the code, e.g. jubayer for jubayer.goatcounter.com. Leave empty to turn counting off. Press Save to GitHub after changing it." }]),
+      h("div", { class: "row", style: "margin-top:14px" }, [
+        h("button", { class: "btn s", type: "button", onclick: function () { renderPanel(); } }, "Apply & refresh"),
+        (function () {
+          var b = h("button", { class: "btn s ghost", type: "button" }, "");
+          function label() { b.textContent = skipOwn() ? "✓ Not counting my visits on this browser" : "Don't count my own visits on this browser"; }
+          b.addEventListener("click", function () {
+            try { if (skipOwn()) localStorage.removeItem("skipgc"); else localStorage.setItem("skipgc", "t"); } catch (e) {}
+            label(); toast(skipOwn() ? "Your visits from this browser won't be counted." : "Your visits from this browser will be counted again.", "ok");
+          });
+          label(); return b;
+        })()
+      ])
+    ]));
+    var setup = card("One-time setup (about 2 minutes)", h("ol", { class: "steps" }, [
+      h("li", null, ["Sign up free at ", h("a", { href: "https://www.goatcounter.com/signup", target: "_blank", rel: "noopener" }, "goatcounter.com/signup"), ". Pick a code, e.g. ", h("b", null, "jubayer"), "."]),
+      h("li", null, ["In GoatCounter go to ", h("b", null, "Settings"), " and tick ", h("b", null, "“Allow adding visitor counts on your website”"), ", then save. This lets this page read the numbers."]),
+      h("li", null, "Type the code in the box below and press Save to GitHub. Counting starts in about a minute."),
+      h("li", null, "GoatCounter uses no cookies, so the site does not need a cookie banner.")
+    ]));
+    if (!code) return head("Visitors", "See how many people visit your site.").concat([setup, settings]);
+    if (!gcValid(code)) return head("Visitors", "See how many people visit your site.").concat([
+      h("p", { class: "verr" }, "“" + code + "” is not a valid GoatCounter code. Use only letters, numbers and dashes."), settings, setup]);
+
+    var ranges = [["Today", "start=" + ymd(0)], ["Last 7 days", "start=" + ymd(6)], ["Last 30 days", "start=" + ymd(29)], ["All time", ""]];
+    var tiles = ranges.map(function (r) { var b = h("b", null, "…"); return { b: b, q: r[1], el: h("div", { class: "vstat" }, [b, h("span", null, r[0])]) }; });
+    var msg = h("p", { class: "verr", hidden: true }, "");
+    var list = h("ol", { class: "vposts" }, [h("li", { class: "empty" }, "Loading…")]);
+    var fmt = function (n) { return n.toLocaleString(); };
+
+    Promise.all(tiles.map(function (t) {
+      return gcGet("TOTAL", t.q).then(function (n) { t.b.textContent = fmt(n); });
+    })).catch(function (e) {
+      tiles.forEach(function (t) { if (t.b.textContent === "…") t.b.textContent = "–"; });
+      msg.hidden = false;
+      msg.textContent = "Couldn't read the counts (" + (e.status ? e.message : "network error") + "). Check that the code is right and that “Allow adding visitor counts on your website” is ticked in GoatCounter settings.";
+    });
+
+    var posts = D.posts.filter(function (p) { return !p.draft && p.id && !/^post-/.test(p.id); });
+    Promise.all(posts.map(function (p) {
+      return gcGet("/post/" + p.id, "").then(function (n) { return { p: p, n: n }; }, function () { return { p: p, n: -1 }; });
+    })).then(function (rows) {
+      list.textContent = "";
+      if (!rows.length) { list.appendChild(h("li", { class: "empty" }, "No published posts yet.")); return; }
+      rows.sort(function (a, b) { return b.n - a.n; });
+      var max = Math.max(1, rows[0].n);
+      rows.forEach(function (r) {
+        var bar = h("i"); bar.style.width = (r.n > 0 ? Math.max(2, r.n / max * 100) : 0) + "%";
+        list.appendChild(h("li", null, [
+          h("a", { href: "index.html#post/" + encodeURIComponent(r.p.id), target: "_blank", rel: "noopener" }, r.p.title || r.p.id),
+          h("span", { class: "vbar" }, [bar]),
+          h("b", null, r.n < 0 ? "–" : fmt(r.n))
+        ]));
+      });
+    });
+
+    return head("Visitors", "Visits to your site, counted by GoatCounter. New visits can take a few minutes to show up.").concat([
+      h("div", { class: "vstats" }, tiles.map(function (t) { return t.el; })),
+      msg,
+      card("Most-read posts", h("div", null, [list, h("p", { class: "hint", style: "margin:12px 0 0" }, "Views count each time someone opens a post, once per visit.")])),
+      card("More detail", h("p", { class: "hint", style: "margin:0" }, [
+        "Countries, devices, where visitors came from and daily charts are on your ",
+        h("a", { href: "https://" + code + ".goatcounter.com", target: "_blank", rel: "noopener" }, "GoatCounter dashboard ↗"), "."
+      ])),
+      settings
     ]);
   }
 

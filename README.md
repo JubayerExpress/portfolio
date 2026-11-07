@@ -45,6 +45,16 @@ The admin panel is protected by a **login ID and password**. GitHub Pages is sta
 
 **What you can do:** edit the Education tab (academics, achievements, clubs with logos and Facebook links); edit name, intro, photos, links, bio, skills; add/reorder/delete Books, Research and Courses with image upload; write blog posts and reviews (Markdown, cover image, rating, draft mode); edit blog categories.
 
+## Visitor counter (Admin → Visitors)
+
+Visits are counted by [GoatCounter](https://www.goatcounter.com) (free, no cookies, so no cookie banner needed). Counting is off until you set it up:
+
+1. Sign up at https://www.goatcounter.com/signup and pick a code (e.g. `jubayer`).
+2. In GoatCounter **Settings**, tick **Allow adding visitor counts on your website** and save.
+3. In the admin open **Visitors**, type the code, press **Save to GitHub**.
+
+The Visitors tab then shows visitors today / last 7 days / last 30 days / all time, and views per blog post. Use **Don't count my own visits on this browser** so your own checks don't inflate the numbers. Countries, devices and referrers are on your GoatCounter dashboard.
+
 ## Editing by hand
 
 `content.js` is plain text. Everything after `window.SITE =` is JSON, so keep the quotes and commas valid. Colors live at the top of `style.css`.
