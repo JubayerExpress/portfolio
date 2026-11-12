@@ -94,38 +94,41 @@ window.SITE = {
   },
   "books": [
     {
-      "title": "Your First Book Title",
-      "year": "2026",
-      "blurb": "A short description of the book: what it is about and who it is for.",
+      "title": "My Journey to Engineering",
+      "year": "Coming soon",
+      "blurb": "Every journey begins with a dream, and every dream is built through determination, curiosity, and perseverance. *My Journey to Engineering* is a personal reflection on the path toward becoming an engineer, exploring the challenges, experiences, lessons, and aspirations that shape the journey. A story of ambition, learning, and the courage to turn dreams into reality.",
       "tags": [
-        "Literature",
-        "Poetry"
+        "Autobiography",
+        "Memoir"
       ],
-      "link": "#",
-      "linkText": "Read more",
-      "image": ""
+      "link": "",
+      "linkText": "Learn More",
+      "image": "assets/uploads/1794508661707-my-journey-to-engineering.jpg"
     },
     {
-      "title": "Another Book or Collection",
-      "year": "2025",
-      "blurb": "Replace this with your own writing. Short stories, essays, poems, anything you publish.",
+      "title": "অহর্নিশ জাগরণ",
+      "year": "Coming soon",
+      "blurb": "‘অহর্নিশ জাগরণ’ এক অনুভূতির নাম, এক নিরন্তর জেগে থাকার গল্প। জীবনের গভীর উপলব্ধি, প্রকৃতির নীরব সৌন্দর্য, মানুষের ভাবনা এবং অন্তরের অজস্র প্রশ্নের মেলবন্ধনে রচিত এই বই। কখনো শব্দে, কখনো নীরবতায়, কখনোবা অনুভূতির গভীরে, এ বই পাঠককে নিয়ে যাবে আত্মঅন্বেষণ ও চিন্তার এক ভিন্ন জগতে। এটি কেবল কিছু লেখার সংকলন নয়, বরং প্রতিনিয়ত জেগে ওঠার এক সাহিত্যিক আহ্বান।",
       "tags": [
+        "কবিতা",
+        "Poetry",
+        "Bengali Literature"
+      ],
+      "link": "#",
+      "linkText": "Learn More",
+      "image": "assets/uploads/1794509023583-post.jpg"
+    },
+    {
+      "title": "তুমি আমি আর কিছু নামহীন চিঠি",
+      "year": "2026",
+      "blurb": "কিছু গল্পের শুরু হয় পরিচয় দিয়ে, কিছু গল্পের শুরু হয় একটি অসমাপ্ত কথোপকথনে। আবার কিছু গল্পের শুরু হয় এমন কিছু চিঠি দিয়ে, যেগুলোর প্রেরকের নাম জানা থাকে না, অথচ প্রতিটি শব্দে লুকিয়ে থাকে এক গভীর অনুভূতি।\n‘তুমি আমি আর কিছু নামহীন চিঠি’ ভালোবাসা, অপেক্ষা, অভিমান, স্মৃতি আর না-বলা কথার এক আবেগঘন গল্প। যেখানে প্রতিটি চিঠি হয়ে ওঠে অনুভূতির বাহক, প্রতিটি শব্দ ছুঁয়ে যায় মনের গভীরতম জায়গা। এটি এমন এক গল্প, যেখানে কিছু মানুষ হারিয়ে গেলেও তাদের রেখে যাওয়া অনুভূতিগুলো কখনো হারায় না।",
+      "tags": [
+        "Romance",
         "Fiction"
       ],
       "link": "#",
-      "linkText": "Read more",
-      "image": ""
-    },
-    {
-      "title": "Work in Progress",
-      "year": "Coming soon",
-      "blurb": "Tease the next project here. Readers love knowing what is coming.",
-      "tags": [
-        "Essays"
-      ],
-      "link": "#",
-      "linkText": "Follow progress",
-      "image": ""
+      "linkText": "Collect Now!",
+      "image": "assets/uploads/1794509133404-title.jpg"
     }
   ],
   "research": [
