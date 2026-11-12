@@ -133,20 +133,6 @@ window.SITE = {
   ],
   "research": [
     {
-      "title": "SoccerBot",
-      "venue": "Robotics project",
-      "year": "2025",
-      "summary": "A C++ project for building a soccer-playing robot. Edit this to describe the hardware, the control logic and what you learned.",
-      "tags": [
-        "Robotics",
-        "C++",
-        "Embedded"
-      ],
-      "link": "https://github.com/JubayerExpress/SoccerBot-HQ",
-      "linkText": "View on GitHub",
-      "image": ""
-    },
-    {
       "title": "Dialect-Independent Natural Language Processing",
       "venue": "Ongoing research",
       "year": "2026",
@@ -163,13 +149,22 @@ window.SITE = {
   ],
   "courses": [
     {
+      "title": "HSC ICT – Learn the Fun Way",
+      "platform": "Wormhole of ICT by Jubayer",
+      "level": "HSC (Higher Secondary Certificate)",
+      "description": "Make HSC ICT easier, smarter, and more enjoyable with Wormhole of ICT! An interactive online learning platform designed to help students master every chapter through structured lessons, practical live labs, extensive MCQ practice, and weekly model tests.\n\n**What's included?**\n- 6 comprehensive chapters\n- 68 interactive live labs\n- 1200+ practice MCQs\n- Weekly model tests\n- Bangla and English learning support\n- Accessible from any smartphone\n\nWhether you're preparing for your HSC examination or building a strong foundation in ICT, everything you need is in one place.\n\n**Freshers Special: Get 30% OFF!**\nUse coupon code: WELCOME26\n\nStart your learning journey today at ictlab.bond.",
+      "link": "https://ictlab.bond",
+      "linkText": "Explore Course",
+      "image": "assets/uploads/1794509413938-wormhole-logo.jpg"
+    },
+    {
       "title": "C Basics for Beginners",
       "platform": "GitHub",
       "level": "Beginner",
       "description": "A beginner-friendly walkthrough of the C programming language with examples you can run.",
       "link": "https://github.com/JubayerExpress/C-Basics-for-Beginners",
       "linkText": "Open course",
-      "image": ""
+      "image": "assets/uploads/1794509234223-images-1.jpg"
     },
     {
       "title": "JavaScript Basics for Beginners",
@@ -178,16 +173,7 @@ window.SITE = {
       "description": "Start JavaScript from zero: variables, functions, the DOM and small projects.",
       "link": "https://github.com/JubayerExpress/JavaScript-Basics-for-Beginners",
       "linkText": "Open course",
-      "image": ""
-    },
-    {
-      "title": "Your Lecture Website",
-      "platform": "Your own site",
-      "level": "Any level",
-      "description": "Point this card at one of your separate lecture websites.",
-      "link": "https://example.com",
-      "linkText": "Open course site",
-      "image": ""
+      "image": "assets/uploads/1794509239732-img-javascript-480.jpg"
     }
   ],
   "blog": {
