@@ -59,6 +59,39 @@ The home page shows a live visitor count next to the contact icons (turn it off 
 
 Under the hero buttons there is a row of round icons: Email first, then GitHub, LinkedIn and your other links from **General → Social links**. Icons are picked automatically from the link (GitHub, LinkedIn, YouTube, Facebook; anything else gets a link icon). A link with no profile path, like `https://facebook.com/`, is treated as a placeholder and hidden from this row.
 
+## Book shop (Admin → Shop settings, Orders, Reviews)
+
+Visitors can buy your books with **bKash (Send Money + TrxID)** or **cash on delivery**, and anyone can write a review (it shows after you approve it).
+Orders and reviews are stored in **your own Google Sheet** through `shop-backend.gs` (Google Apps Script, free).
+
+One-time setup: Admin → **Shop settings** walks you through it (make a Sheet → Extensions → Apps Script → paste the code from the
+"Copy backend code" button → Deploy as Web app, access *Anyone* → paste the /exec URL → Test → Save to GitHub).
+Then in **Books**, tick "Sell this book" and set a price. New orders also arrive by email.
+
+Only your GitHub account can manage orders: the admin proves who you are with the same GitHub token it already uses.
+If you change `shop-backend.gs`, redeploy it in Apps Script (Deploy → Manage deployments → edit → New version).
+
+Link to a book's order form from anywhere with `#buy/BOOK-ID` (IDs are in Admin → Books), or its reviews with `#reviews/BOOK-ID`.
+
+### Coupons (Admin → Coupons)
+
+Make discount codes: **% off** (with an optional biggest discount), **৳ off**, or **free delivery**. Each can have a minimum order,
+a last day, a usage limit, and work on all books or one book. Tick "Show it on the website" to show it as a coupon ticket above
+your books ("Copy & use" puts it straight into the buyer's order form). Coupons live in the **Coupons** tab of your Google Sheet,
+not in the website code, so nobody can dig them out. The Sheet checks every coupon again when an order is placed.
+
+## Announcement bar (Admin → Announcement)
+
+A scrolling notice strip above the menu. Add as many notices as you like, each with an optional link and a glowing NEW badge.
+Visitors can close it; it comes back when the notices change.
+
+## Updates never touch your content
+
+Your own stuff lives in three places: `content.js` (all text and settings from the admin), `assets/` (your photos and uploads)
+and `vault.js` (your login). Code updates are shipped **without** these files, so uploading an update to GitHub never changes
+what you wrote. New settings get sensible defaults automatically the first time you open the admin.
+Orders, reviews and coupons live in your Google Sheet, so code updates never touch them either.
+
 ## Editing by hand
 
 `content.js` is plain text. Everything after `window.SITE =` is JSON, so keep the quotes and commas valid. Colors live at the top of `style.css`.

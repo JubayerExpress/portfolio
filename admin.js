@@ -84,6 +84,12 @@
     d.blog = d.blog || {}; d.blog.categories = d.blog.categories || ["Education", "Book Reviews", "Movie Reviews", "Game Reviews", "Thoughts"];
     d.posts = d.posts || [];
     d.analytics = d.analytics || {}; if (d.analytics.goatcounter == null) d.analytics.goatcounter = ""; if (d.analytics.showCounter == null) d.analytics.showCounter = true;
+    d.books.forEach(function (b, i) { if (!b.id) b.id = "book-" + (i + 1); });
+    d.shop = d.shop || {};
+    var SD = { enabled: true, endpoint: "", currency: "৳", bkashNumber: "", bkashType: "Personal", cod: true, freeNote: "🎓 BRAC University-তে ফ্রি ডেলিভারি!" };
+    Object.keys(SD).forEach(function (k) { if (d.shop[k] == null) d.shop[k] = SD[k]; });
+    d.shop.delivery = d.shop.delivery || [{ label: "BRAC University (campus)", fee: 0 }, { label: "Inside Dhaka", fee: 60 }, { label: "Outside Dhaka", fee: 120 }];
+    d.announce = d.announce || {}; if (d.announce.enabled == null) d.announce.enabled = false; d.announce.items = d.announce.items || [];
     return d;
   }
   function loadRemote() {
@@ -343,7 +349,7 @@
 
   /* ---------- tabs ---------- */
   var TABS = [
-    ["visitors", "Visitors"], ["general", "General"], ["about", "About"], ["books", "Books"],
+    ["visitors", "Visitors"], ["orders", "Orders"], ["reviews", "Reviews"], ["coupons", "Coupons"], ["general", "General"], ["announce", "Announcement"], ["about", "About"], ["books", "Books"], ["shop", "Shop settings"],
     ["education", "Education"], ["research", "Research"], ["courses", "Courses"], ["posts", "Blog posts"], ["account", "Account"]
   ];
   function renderTabs() {
@@ -361,6 +367,11 @@
     var kids = [];
     if (tab === "account") kids = panelAccount();
     else if (tab === "visitors") kids = panelVisitors();
+    else if (tab === "orders") kids = panelOrders();
+    else if (tab === "reviews") kids = panelReviews();
+    else if (tab === "coupons") kids = panelCoupons();
+    else if (tab === "shop") kids = panelShop();
+    else if (tab === "announce") kids = panelAnnounce();
     else if (tab === "general") kids = panelGeneral();
     else if (tab === "about") kids = panelAbout();
     else if (tab === "books") kids = panelBooks();
@@ -505,6 +516,285 @@
     ]);
   }
 
+  /* ---------- shop: orders, reviews, settings (backend = shop-backend.gs in a Google Sheet) ---------- */
+  var shopCache = null;   // last admin.list answer
+  function shopUrl() { return String((D.shop && D.shop.endpoint) || "").trim(); }
+  function shopApi(body) {
+    if (!/^https:\/\/script\.google(usercontent)?\.com\//.test(shopUrl())) return Promise.reject(new Error("Add your Shop backend URL in Shop settings first."));
+    body.token = cfg.token;
+    return fetch(shopUrl(), { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json(); }, function () { throw new Error("Couldn't reach the shop backend. Check your internet."); })
+      .then(function (j) { if (!j || !j.ok) throw new Error((j && j.error) || "The shop backend said no."); return j; });
+  }
+  function clean(v) { return String(v == null ? "" : v).replace(/^'/, ""); }
+  function when(v) { var d = new Date(v); return isNaN(d) ? clean(v) : d.toLocaleString("en-GB", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }); }
+  function taka(n) { return "৳" + (Number(n) || 0).toLocaleString("en-IN"); }
+  function loadShop(force) {
+    if (shopCache && !force) return Promise.resolve(shopCache);
+    return shopApi({ action: "admin.list" }).then(function (j) { shopCache = j; return j; });
+  }
+  function shopShell(title, hint, build) {
+    var box = h("div", null, [h("p", { class: "empty" }, "Loading…")]);
+    var bar = h("div", { class: "row", style: "margin:-8px 0 18px" }, [
+      h("button", { class: "btn s", type: "button", onclick: function () { shopCache = null; renderPanel(); } }, "↻ Refresh")
+    ]);
+    loadShop().then(function (j) {
+      box.textContent = "";
+      if (j.sheetUrl) bar.appendChild(h("a", { class: "btn s ghost", href: j.sheetUrl, target: "_blank", rel: "noopener" }, "Open Google Sheet ↗"));
+      build(box, j);
+    }).catch(function (e) {
+      box.textContent = "";
+      box.appendChild(h("p", { class: "verr", style: "margin:0 0 14px" }, e.message));
+      if (!shopUrl()) box.appendChild(h("button", { class: "btn s", type: "button", onclick: function () { tab = "shop"; renderTabs(); renderPanel(); } }, "Go to Shop settings →"));
+    });
+    return head(title, hint).concat([bar, box]);
+  }
+
+  var ORDER_STATUS = ["Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"];
+  var orderFilter = "Pending";
+  function panelOrders() {
+    return shopShell("Orders", "New orders appear here. Check the bKash TrxID in your bKash app, call the buyer, then move the order along.", function (box, j) {
+      var orders = j.orders || [];
+      var count = function (st) { return orders.filter(function (o) { return o.Status === st; }).length; };
+      var earned = orders.filter(function (o) { return o.Status === "Delivered"; }).reduce(function (s, o) { return s + (Number(o.Total) || 0); }, 0);
+      box.appendChild(h("div", { class: "vstats" }, [
+        ["New", count("Pending")], ["To deliver", count("Confirmed") + count("Shipped")], ["Delivered", count("Delivered")], ["Earned", taka(earned)]
+      ].map(function (t) { return h("div", { class: "vstat" }, [h("b", null, String(t[1])), h("span", null, t[0])]); })));
+      var chips = h("div", { class: "fchips" });
+      ["All"].concat(ORDER_STATUS).forEach(function (st) {
+        var n = st === "All" ? orders.length : count(st);
+        chips.appendChild(h("button", { class: "fchip" + (orderFilter === st ? " on" : ""), type: "button", onclick: function () { orderFilter = st; renderPanel(); } }, st + " (" + n + ")"));
+      });
+      box.appendChild(chips);
+      var list = orders.filter(function (o) { return orderFilter === "All" || o.Status === orderFilter; });
+      if (!list.length) { box.appendChild(h("p", { class: "empty" }, orders.length ? "No orders with this status." : "No orders yet. They will show up here.")); return; }
+      list.forEach(function (o) { box.appendChild(orderCard(o)); });
+    });
+  }
+  function orderCard(o) {
+    var id = clean(o["Order ID"]), bk = /bkash/i.test(o.Payment), phone = clean(o.Phone);
+    var sel = h("select", { class: "st-sel" });
+    ORDER_STATUS.forEach(function (st) { var op = h("option", { value: st }, st); if (st === o.Status) op.selected = true; sel.appendChild(op); });
+    var pill = h("span", { class: "pill st-" + String(o.Status).toLowerCase() }, o.Status);
+    sel.addEventListener("change", function () {
+      var old = o.Status, nv = sel.value; sel.disabled = true;
+      shopApi({ action: "admin.order", id: id, status: nv }).then(function () {
+        o.Status = nv; pill.textContent = nv; pill.className = "pill st-" + nv.toLowerCase(); toast(id + " → " + nv, "ok");
+      }).catch(function (e) { sel.value = old; toast(e.message, "err"); }).then(function () { sel.disabled = false; });
+    });
+    var note = h("input", { type: "text", placeholder: "Private note (only you see this)", value: clean(o["Admin note"]) });
+    note.addEventListener("change", function () {
+      shopApi({ action: "admin.order", id: id, adminNote: note.value }).then(function () { o["Admin note"] = note.value; toast("Note saved", "ok"); }).catch(function (e) { toast(e.message, "err"); });
+    });
+    function copy(txt) { return h("button", { class: "mini", type: "button", onclick: function (e) { var b = e.target; if (navigator.clipboard) navigator.clipboard.writeText(txt); b.textContent = "✓"; setTimeout(function () { b.textContent = "Copy"; }, 1200); } }, "Copy"); }
+    var digits = phone.replace(/\D/g, ""), wa = digits.replace(/^0/, "880");
+    return h("article", { class: "ord" }, [
+      h("div", { class: "ord-top" }, [h("b", { class: "mono" }, id), pill, h("time", null, when(o.Time))]),
+      h("div", { class: "ord-main" }, [
+        h("div", null, [h("b", null, clean(o.Book)), " × " + o.Qty, h("small", null, taka(o["Unit price"]) + " each · " + clean(o["Delivery area"]) + " (" + (Number(o["Delivery fee"]) ? taka(o["Delivery fee"]) : "free") + ")")]),
+        h("div", { class: "ord-total" }, taka(o.Total))
+      ]),
+      h("div", { class: "ord-pay" + (bk ? " bk" : "") }, bk
+        ? [h("b", null, "bKash"), " TrxID ", h("b", { class: "mono" }, clean(o.TrxID)), copy(clean(o.TrxID)), h("span", null, " from " + clean(o["bKash sender"]))]
+        : [h("b", null, "💵 Cash on delivery")]),
+      h("div", { class: "ord-who" }, [
+        h("div", null, [h("span", { class: "k" }, "Name"), clean(o.Name)]),
+        h("div", null, [h("span", { class: "k" }, "Phone"), h("a", { href: "tel:" + digits }, phone), " ", h("a", { class: "mini", href: "https://wa.me/" + wa, target: "_blank", rel: "noopener" }, "WhatsApp")]),
+        o.Email ? h("div", null, [h("span", { class: "k" }, "Email"), h("a", { href: "mailto:" + clean(o.Email) }, clean(o.Email))]) : null,
+        h("div", { class: "wide" }, [h("span", { class: "k" }, "Address"), clean(o.Address)]),
+        o.Note ? h("div", { class: "wide" }, [h("span", { class: "k" }, "Note"), clean(o.Note)]) : null
+      ].filter(Boolean)),
+      h("div", { class: "ord-ctl" }, [h("label", null, ["Status ", sel]), note])
+    ]);
+  }
+
+  var reviewFilter = "Pending";
+  function panelReviews() {
+    return shopShell("Reviews", "New reviews wait here until you approve them. Only approved reviews show on the site.", function (box, j) {
+      var all = j.reviews || [];
+      var count = function (st) { return all.filter(function (r) { return r.Status === st; }).length; };
+      var chips = h("div", { class: "fchips" });
+      ["Pending", "Approved", "Hidden", "All"].forEach(function (st) {
+        chips.appendChild(h("button", { class: "fchip" + (reviewFilter === st ? " on" : ""), type: "button", onclick: function () { reviewFilter = st; renderPanel(); } }, st + " (" + (st === "All" ? all.length : count(st)) + ")"));
+      });
+      box.appendChild(chips);
+      var list = all.filter(function (r) { return reviewFilter === "All" || r.Status === reviewFilter; });
+      if (!list.length) { box.appendChild(h("p", { class: "empty" }, all.length ? "Nothing here." : "No reviews yet.")); return; }
+      list.forEach(function (r) {
+        var id = clean(r["Review ID"]), n = Math.max(0, Math.min(5, Number(r.Rating) || 0));
+        var pill = h("span", { class: "pill st-" + String(r.Status).toLowerCase() }, r.Status);
+        var el = h("article", { class: "ord rv" });
+        function act(label, status, cls) {
+          return h("button", { class: "btn s " + (cls || "ghost"), type: "button", onclick: function () {
+            if (status === "delete" && !confirm("Delete this review for good?")) return;
+            var p = status === "delete" ? shopApi({ action: "admin.reviewDelete", id: id }) : shopApi({ action: "admin.review", id: id, status: status });
+            p.then(function () {
+              if (status === "delete") { j.reviews = all.filter(function (x) { return x !== r; }); toast("Review deleted", "ok"); }
+              else { r.Status = status; toast(status === "Approved" ? "Approved: it's on the site now" : "Hidden from the site", "ok"); }
+              renderPanel();
+            }).catch(function (e) { toast(e.message, "err"); });
+          } }, label);
+        }
+        el.appendChild(h("div", { class: "ord-top" }, [h("b", null, clean(r.Name)), h("span", { class: "rstars" }, "★".repeat(n) + "☆".repeat(5 - n)), pill, h("time", null, when(r.Time))]));
+        el.appendChild(h("p", { class: "rv-book" }, "on " + clean(r.Book)));
+        el.appendChild(h("p", { class: "rv-text" }, clean(r.Review)));
+        el.appendChild(h("div", { class: "row" }, [
+          r.Status !== "Approved" ? act("✓ Approve", "Approved", "") : null,
+          r.Status !== "Hidden" ? act("Hide", "Hidden") : null,
+          act("Delete", "delete", "ghost danger")
+        ].filter(Boolean)));
+        box.appendChild(el);
+      });
+    });
+  }
+
+  function panelShop() {
+    var S2 = D.shop;
+    var test = h("span", { class: "hint", style: "margin:0" }, "");
+    var copyCode = h("button", { class: "btn s", type: "button", onclick: function () {
+      fetch("shop-backend.gs", { cache: "no-store" }).then(function (r) { if (!r.ok) throw 0; return r.text(); }).then(function (code) {
+        return navigator.clipboard.writeText(code).then(function () { toast("Backend code copied. Paste it into Apps Script.", "ok"); });
+      }).catch(function () { window.open("shop-backend.gs", "_blank"); toast("Opened the code in a new tab. Select all and copy it.", "ok"); });
+    } }, "📋 Copy backend code");
+    return head("Shop settings", "Sell your books with bKash or cash on delivery. Turn on selling for each book in the Books tab.").concat([
+      card("1 · Connect your Google Sheet (one time)", h("div", null, [
+        h("ol", { class: "steps" }, [
+          h("li", null, ["Make a new Google Sheet at ", h("a", { href: "https://sheets.new", target: "_blank", rel: "noopener" }, "sheets.new"), ", name it e.g. “Book orders”."]),
+          h("li", null, ["In the Sheet: ", h("b", null, "Extensions → Apps Script"), ". Delete what's there, then paste the backend code: ", copyCode]),
+          h("li", null, ["Check line 14 says your GitHub username (", h("b", null, cfg.owner || "JubayerExpress"), "). Click 💾 Save."]),
+          h("li", null, [h("b", null, "Deploy → New deployment"), " → ⚙ type ", h("b", null, "Web app"), " → Execute as ", h("b", null, "Me"), ", Who has access ", h("b", null, "Anyone"), " → Deploy → allow the permissions."]),
+          h("li", null, "Copy the Web app URL (ends with /exec) and paste it below. Then press Test, and Save to GitHub.")
+        ]),
+        fieldGrid(S2, [{ k: "endpoint", t: "text", l: "Shop backend URL", wide: true, ph: "https://script.google.com/macros/s/…/exec" }]),
+        h("div", { class: "row", style: "margin-top:12px;align-items:center" }, [
+          h("button", { class: "btn s", type: "button", onclick: function () {
+            test.textContent = "Testing…"; test.style.color = "";
+            fetch(shopUrl()).then(function (r) { return r.json(); }).then(function (j) { if (!j.ready) throw 0; return shopApi({ action: "admin.list" }); })
+              .then(function (j) { shopCache = j; test.textContent = "✓ Connected. Orders: " + j.orders.length + ", reviews: " + j.reviews.length; test.style.color = "var(--ok)"; })
+              .catch(function (e) { test.textContent = "✗ " + ((e && e.message) || "Not working. Check the URL and that access is set to Anyone."); test.style.color = "var(--red)"; });
+          } }, "Test connection"), test
+        ])
+      ])),
+      card("2 · Payment", fieldGrid(S2, [
+        { k: "bkashNumber", t: "text", l: "Your bKash number", ph: "01XXXXXXXXX", help: "Buyers send money here. Leave empty to turn off bKash." },
+        { k: "bkashType", t: "select", l: "bKash account type", options: ["Personal", "Agent", "Merchant"] },
+        { k: "cod", t: "bool", l: "Allow cash on delivery", wide: true }
+      ])),
+      card("3 · Delivery areas", h("div", null, [
+        h("p", { class: "hint", style: "margin:0 0 12px" }, "The first area is selected by default. Fee 0 shows as “Free delivery”."),
+        listEditor(S2.delivery, [{ k: "label", t: "text", l: "Area name" }, { k: "fee", t: "text", l: "Delivery fee (৳)", ph: "0" }], {
+          title: function (a) { return (a.label || "Area") + " · " + (Number(a.fee) ? "৳" + a.fee : "Free"); }, blank: function () { return { label: "New area", fee: 0 }; }, add: "+ Add area"
+        }),
+        fieldGrid(S2, [{ k: "freeNote", t: "text", l: "Banner in the order form", wide: true, help: "Shown at the top of the order form, e.g. free delivery for BRAC University." }])
+      ])),
+      card("4 · On / off", fieldGrid(S2, [{ k: "enabled", t: "bool", l: "Shop is open (untick to hide all Buy buttons and reviews)", wide: true }]))
+    ]);
+  }
+
+  function panelAnnounce() {
+    var A2 = D.announce;
+    return head("Announcement", "A scrolling notice bar at the very top of the site. Great for new books, offers and news.").concat([
+      card(null, fieldGrid(A2, [{ k: "enabled", t: "bool", l: "Show the announcement bar", wide: true }])),
+      card("Notices (they scroll one after another)", listEditor(A2.items, [
+        { k: "text", t: "text", l: "Text", wide: true },
+        { k: "link", t: "text", l: "Link (optional)", wide: true, help: "Any web address, a section like #books, or #buy/BOOK-ID to open a book's order form (book IDs are in the Books tab)." },
+        { k: "isNew", t: "bool", l: "Show a glowing NEW badge" }
+      ], { title: function (x) { return (x.isNew ? "🆕 " : "") + (x.text || "Empty notice"); }, blank: function () { return { text: "New notice", link: "", isNew: false }; }, add: "+ Add notice", addFirst: true })),
+      h("p", { class: "hint" }, "Visitors can close the bar. It comes back for them when you change the notices.")
+    ]);
+  }
+
+  /* ---------- coupons (stored in the Google Sheet, so they never show in the site's code) ---------- */
+  var CP_TYPES = [{ v: "percent", l: "% off" }, { v: "flat", l: "৳ off" }, { v: "freeship", l: "Free delivery" }];
+  function cpOffer(c) { return c.type === "percent" ? (c.value || 0) + "% OFF" : c.type === "flat" ? "৳" + (c.value || 0) + " OFF" : "FREE DELIVERY"; }
+  function cpState(c) {
+    var today = new Date(Date.now() + 6 * 3600e3).toISOString().slice(0, 10);   // Dhaka date
+    if (!c.active) return ["Off", "cancelled"];
+    if (c.expires && today > c.expires) return ["Expired", "cancelled"];
+    if (c.uses && c.used >= c.uses) return ["Used up", "cancelled"];
+    return ["Active", "approved"];
+  }
+  function panelCoupons() {
+    return shopShell("Coupons", "Make discount codes for your buyers. Codes live in your Google Sheet, so nobody can find them in the website's code.", function (box, j) {
+      var list = j.coupons || [];
+      box.appendChild(h("div", { class: "row", style: "margin-bottom:16px" }, [
+        h("button", { class: "btn s", type: "button", onclick: function () {
+          var fresh = { code: "", type: "percent", value: 10, min: 0, max: 0, expires: "", uses: 0, used: 0, active: true, show: false, book: "", note: "", _new: true };
+          list.unshift(fresh); renderPanel();
+        } }, "+ New coupon")
+      ]));
+      if (!list.length) { box.appendChild(h("p", { class: "empty" }, "No coupons yet. Press + New coupon to make one, e.g. BRACU10 for 10% off.")); return; }
+      list.forEach(function (c) { box.appendChild(couponCard(c, list)); });
+    });
+  }
+  function couponCard(c, list) {
+    var orig = c.code, st = cpState(c);
+    function inp(k, type, ph, extra) {
+      var e = h("input", Object.assign({ type: type || "text", placeholder: ph || "" }, extra || {}));
+      e.value = c[k] == null ? "" : c[k];
+      e.addEventListener("input", function () { c[k] = type === "number" ? (e.value === "" ? 0 : +e.value) : e.value; paintHead(); });
+      return e;
+    }
+    function lab(text, el, help) { return h("label", { class: "f" }, [h("span", { class: "l" }, text), el, help ? h("small", null, help) : null].filter(Boolean)); }
+    function check(k, text) {
+      var e = h("input", { type: "checkbox" }); e.checked = !!c[k];
+      e.addEventListener("change", function () { c[k] = e.checked; paintHead(); });
+      return h("label", { class: "f check" }, [e, h("span", null, text)]);
+    }
+    var codeIn = inp("code", "text", "e.g. BRACU10", { class: "mono", maxlength: "24" });
+    codeIn.addEventListener("input", function () { codeIn.value = codeIn.value.toUpperCase().replace(/[^A-Z0-9_-]/g, ""); c.code = codeIn.value; paintHead(); });
+    var typeSel = h("select");
+    CP_TYPES.forEach(function (t) { var o = h("option", { value: t.v }, t.l); if (t.v === c.type) o.selected = true; typeSel.appendChild(o); });
+    var valueWrap, maxWrap;
+    typeSel.addEventListener("change", function () { c.type = typeSel.value; showFields(); paintHead(); });
+    var bookSel = h("select"); bookSel.appendChild(h("option", { value: "" }, "All books"));
+    (D.books || []).forEach(function (b) { var o = h("option", { value: b.id }, b.title); if (b.id === c.book) o.selected = true; bookSel.appendChild(o); });
+    bookSel.addEventListener("change", function () { c.book = bookSel.value; });
+    var offerEl = h("span", { class: "cpa-offer" }), codeEl = h("b", { class: "mono" }), pill = h("span", { class: "pill" }), usedEl = h("small");
+    function paintHead() {
+      st = cpState(c);
+      offerEl.textContent = cpOffer(c); codeEl.textContent = c.code || "NEW CODE";
+      pill.textContent = c._new ? "Not saved" : st[0]; pill.className = "pill st-" + (c._new ? "pending" : st[1]);
+      usedEl.textContent = "Used " + (c.used || 0) + (c.uses ? " / " + c.uses : "") + " times";
+    }
+    function showFields() { valueWrap.hidden = c.type === "freeship"; maxWrap.hidden = c.type !== "percent"; }
+    valueWrap = lab("Amount", inp("value", "number", "", { min: "0" }), "Percent for % off, taka for ৳ off.");
+    maxWrap = lab("Biggest discount (৳, optional)", inp("max", "number", "0 = no limit", { min: "0" }));
+    var saveBtn = h("button", { class: "btn s", type: "button" }, "Save coupon");
+    saveBtn.addEventListener("click", function () {
+      if ((c.code || "").length < 3) { toast("Give the coupon a code of at least 3 letters or numbers.", "err"); return; }
+      saveBtn.disabled = true; saveBtn.textContent = "Saving…";
+      var send = { code: c.code, type: c.type, value: c.value, min: c.min, max: c.max, expires: c.expires, uses: c.uses, active: c.active, show: c.show, book: c.book, note: c.note };
+      shopApi({ action: "admin.couponSave", coupon: send, original: c._new ? "" : orig }).then(function (r) {
+        delete c._new; c.code = r.code; orig = r.code; delBtn.textContent = "Delete"; toast("Coupon " + r.code + " saved ✓", "ok"); paintHead();
+      }).catch(function (e) { toast(e.message, "err"); }).then(function () { saveBtn.disabled = false; saveBtn.textContent = "Save coupon"; });
+    });
+    var delBtn = h("button", { class: "btn s ghost danger", type: "button", onclick: function () {
+      if (c._new) { list.splice(list.indexOf(c), 1); renderPanel(); return; }
+      if (!confirm("Delete coupon " + orig + "? Buyers won't be able to use it any more.")) return;
+      shopApi({ action: "admin.couponDelete", code: orig }).then(function () { list.splice(list.indexOf(c), 1); toast("Coupon deleted", "ok"); renderPanel(); })
+        .catch(function (e) { toast(e.message, "err"); });
+    } }, c._new ? "Cancel" : "Delete");
+    var el = h("article", { class: "ord cpa" }, [
+      h("div", { class: "cpa-head" }, [h("div", { class: "cpa-left" }, [offerEl]), h("div", { class: "cpa-right" }, [codeEl, pill, usedEl])]),
+      h("div", { class: "grid" }, [
+        lab("Code", codeIn, "Letters and numbers. Buyers type this."),
+        lab("Discount type", typeSel),
+        valueWrap, maxWrap,
+        lab("Minimum order (৳, optional)", inp("min", "number", "0 = any order", { min: "0" })),
+        lab("Last day (optional)", inp("expires", "date")),
+        lab("How many times it can be used", inp("uses", "number", "0 = no limit", { min: "0" }), "Counted across all buyers."),
+        lab("Works on", bookSel),
+        h("label", { class: "f wide" }, [h("span", { class: "l" }, "Short note on the coupon (optional)"), inp("note", "text", "e.g. For BRACU students 🎓", { maxlength: "200" })]),
+        check("active", "Active (buyers can use it)"),
+        check("show", "Show it on the website as a coupon ticket")
+      ]),
+      h("div", { class: "row" }, [saveBtn, delBtn])
+    ]);
+    showFields(); paintHead();
+    return el;
+  }
+
   var SOCIAL = [{ k: "label", t: "text", l: "Label" }, { k: "url", t: "url", l: "URL" }];
   function panelGeneral() {
     return head("General", "Your name, intro, hero photo and links.").concat([
@@ -538,8 +828,13 @@
         { k: "title", t: "text", l: "Title" }, { k: "year", t: "text", l: "Year / status" },
         { k: "blurb", t: "textarea", l: "Description", wide: true },
         { k: "tags", t: "tags", l: "Tags" }, { k: "link", t: "text", l: "Link (buy / read / download)" }, { k: "linkText", t: "text", l: "Button text" },
-        { k: "image", t: "image", l: "Cover image", wide: true }
-      ], { title: function (b) { return b.title || "Untitled book"; }, blank: function () { return { title: "New book", year: today().slice(0, 4), blurb: "", tags: [], link: "", linkText: "Read more", image: "" }; }, add: "+ Add book", addFirst: true }))
+        { k: "image", t: "image", l: "Cover image", wide: true },
+        { k: "forSale", t: "bool", l: "🛒 Sell this book on the site (shows price + Buy button)", wide: true },
+        { k: "price", t: "text", l: "Price (৳)", ph: "e.g. 350" }, { k: "oldPrice", t: "text", l: "Old price (optional, shown crossed out)", ph: "e.g. 450" },
+        { k: "soldOut", t: "bool", l: "Sold out for now (hides the Buy button)" },
+        { k: "id", t: "text", l: "Book ID", help: "Used to link orders and reviews to this book. Don't change it after people start ordering." }
+      ], { title: function (b) { return (b.forSale ? (b.soldOut ? "⛔ " : "🛒 ") : "") + (b.title || "Untitled book") + (b.forSale && b.price ? "  ·  ৳" + b.price : ""); },
+           blank: function () { return { id: "book-" + Date.now().toString(36), title: "New book", year: today().slice(0, 4), blurb: "", tags: [], link: "", linkText: "Read more", image: "", forSale: false, price: "", oldPrice: "", soldOut: false }; }, add: "+ Add book", addFirst: true }))
     ]);
   }
   function panelEducation() {

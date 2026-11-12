@@ -34,6 +34,46 @@
     gs.onload = function () { var q = gcQueue; gcQueue = []; if (gcReady()) q.forEach(function (v) { window.goatcounter.count(v); }); };
     document.head.appendChild(gs);
   } else gcCode = "";
+  /* ---------- Announcement bar (scrolling notices above the menu) ----------
+     Edited in Admin → Announcement. A visitor who closes it won't see it again
+     until the notices change. */
+  (function () {
+    var AN = S.announce || {};
+    var items = (AN.items || []).filter(function (x) { return x && String(x.text || "").trim(); });
+    if (!AN.enabled || !items.length) return;
+    var sig = items.map(function (x) { return x.text + "|" + (x.link || ""); }).join("~"), hsh = 0;
+    for (var k = 0; k < sig.length; k++) hsh = (hsh * 31 + sig.charCodeAt(k)) | 0;
+    try { if (localStorage.getItem("annHidden") === String(hsh)) return; } catch (e) {}
+    var dot = '<i class="ann-dot" aria-hidden="true">✦</i>';
+    var one = items.map(function (x) {
+      var inner = (x.isNew ? '<em class="ann-new">NEW</em>' : "") + "<span>" + esc(x.text) + "</span>";
+      return x.link ? '<a class="ann-i" ' + linkAttrs(x.link) + ">" + inner + "</a>" : '<span class="ann-i">' + inner + "</span>";
+    }).join(dot) + dot;
+    var bar = document.createElement("div");
+    bar.className = "ann"; bar.setAttribute("role", "region"); bar.setAttribute("aria-label", "Announcements");
+    bar.innerHTML = '<div class="ann-track"><div class="ann-run">' + one + "</div></div>" +
+      '<button class="ann-x" type="button" aria-label="Hide announcements" title="Hide">✕</button>';
+    document.body.insertBefore(bar, document.body.firstChild);
+    document.documentElement.classList.add("has-ann");
+    var track = bar.querySelector(".ann-track"), run = bar.querySelector(".ann-run");
+    if (!reduce) {
+      // Repeat the notices until one copy is wider than the screen, then add a second copy
+      // so the loop is seamless (the animation slides exactly one copy's width).
+      var reps = 1;
+      while (run.scrollWidth < innerWidth + 40 && reps < 12) { run.innerHTML += one; reps++; }
+      var copy = run.cloneNode(true); copy.setAttribute("aria-hidden", "true");
+      copy.querySelectorAll("a").forEach(function (a) { a.tabIndex = -1; });
+      track.appendChild(copy);
+      track.style.setProperty("--ann-dur", Math.max(14, run.scrollWidth / 70) + "s");
+      track.classList.add("go");
+      bar.addEventListener("touchstart", function () { track.classList.toggle("hold"); }, { passive: true });
+    }
+    bar.querySelector(".ann-x").addEventListener("click", function () {
+      try { localStorage.setItem("annHidden", String(hsh)); } catch (e) {}
+      bar.remove(); document.documentElement.classList.remove("has-ann");
+    });
+  })();
+
   function trackPost(p) {
     if (!gcCode || gcSeen[p.id]) return;   // once per post per visit
     gcSeen[p.id] = 1;
