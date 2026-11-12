@@ -107,7 +107,7 @@ window.SITE = {
       "id": "book-1",
       "forSale": true,
       "price": "350",
-      "soldOut": true,
+      "soldOut": false,
       "oldPrice": "400"
     },
     {
