@@ -84,7 +84,14 @@
     d.blog = d.blog || {}; d.blog.categories = d.blog.categories || ["Education", "Book Reviews", "Movie Reviews", "Game Reviews", "Thoughts"];
     d.posts = d.posts || [];
     d.analytics = d.analytics || {}; if (d.analytics.goatcounter == null) d.analytics.goatcounter = ""; if (d.analytics.showCounter == null) d.analytics.showCounter = true;
-    d.books.forEach(function (b, i) { if (!b.id) b.id = "book-" + (i + 1); });
+    // Every book needs its own ID (orders and reviews use it). Missing or repeated IDs get a fresh one;
+    // the first book that has an ID keeps it, so links like #buy/book-1 keep working.
+    var seenIds = {};
+    d.books.forEach(function (b, i) {
+      var id = String(b.id || "").trim();
+      if (!id || seenIds[id]) { var n = i + 1; do { id = "book-" + n++; } while (seenIds[id] || d.books.some(function (x) { return x !== b && x.id === id; })); b.id = id; }
+      seenIds[id] = true;
+    });
     d.shop = d.shop || {};
     var SD = { enabled: true, endpoint: "", currency: "৳", bkashNumber: "", bkashType: "Personal", cod: true, freeNote: "🎓 BRAC University-তে ফ্রি ডেলিভারি!" };
     Object.keys(SD).forEach(function (k) { if (d.shop[k] == null) d.shop[k] = SD[k]; });
@@ -834,6 +841,7 @@
         { k: "blurb", t: "textarea", l: "Description", wide: true },
         { k: "tags", t: "tags", l: "Tags" }, { k: "link", t: "text", l: "Link (buy / read / download)" }, { k: "linkText", t: "text", l: "Button text" },
         { k: "image", t: "image", l: "Cover image", wide: true },
+        { k: "badge", t: "text", l: "Ribbon on the cover (optional)", ph: "e.g. New arrival, Bestseller, Pre-order" },
         { k: "forSale", t: "bool", l: "🛒 Sell this book on the site (shows price + Buy button)", wide: true },
         { k: "price", t: "text", l: "Price (৳)", ph: "e.g. 350", when: function (b) { return !!b.forSale; } },
         { k: "oldPrice", t: "text", l: "Old price (optional, shown crossed out)", ph: "e.g. 450", when: function (b) { return !!b.forSale; } },

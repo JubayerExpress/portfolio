@@ -106,7 +106,7 @@ window.SITE = {
       "image": "assets/uploads/1794509133404-title.jpg",
       "id": "book-1",
       "forSale": true,
-      "price": "400",
+      "price": "350",
       "soldOut": false,
       "oldPrice": "400"
     },
@@ -121,7 +121,7 @@ window.SITE = {
       "link": "",
       "linkText": "Learn More",
       "image": "assets/uploads/1794508661707-my-journey-to-engineering.jpg",
-      "id": "book-1"
+      "id": "my-journey-to-engineering"
     },
     {
       "title": "অহর্নিশ জাগরণ",

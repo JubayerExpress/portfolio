@@ -68,7 +68,9 @@
     var link = el.querySelector(".link");
     // An empty or "#" link was only a placeholder for buying; the Buy button replaces it.
     if (link && onSale(b) && (!b.link || b.link === "#")) link.remove();
-    var cov = el.querySelector(".cover");
+    // A link of just "#buy" means "buy this book": open its order form.
+    else if (link && /^#buy\/?$/.test(String(b.link || "").trim())) { link.setAttribute("href", "#buy/" + encodeURIComponent(id)); link.removeAttribute("target"); }
+    var cov = el.querySelector(".bk-stage") || el.querySelector(".cover");
     if (cov && onSale(b)) {
       var off = Number(b.oldPrice) > Number(b.price) ? Math.round((1 - Number(b.price) / Number(b.oldPrice)) * 100) : 0;
       cov.insertAdjacentHTML("beforeend",
@@ -78,9 +80,23 @@
       if (!soldOut(b)) { cov.classList.add("can-buy"); cov.setAttribute("data-buy", i); }
     }
     var after = el.querySelector(".chips");
-    if (after && after.nextSibling) el.insertBefore(box, after.nextSibling); else el.appendChild(box);
+    if (after) after.parentNode.insertBefore(box, after.nextSibling); else (el.querySelector(".bk-body") || el).appendChild(box);
   });
+  /* ---------- store look: perks strip under the heading ---------- */
+  if (books.some(onSale)) {
+    var sec = $("books"); if (sec) sec.classList.add("store");
+    var free = AREAS.filter(function (a) { return !(Number(a.fee) > 0); })[0];
+    var perks = [];
+    if (free) perks.push('<span><i>🚚</i><b>Free delivery</b> · ' + esc(free.label) + "</span>");
+    if (String(SH.bkashNumber || "").trim()) perks.push('<span><i>📲</i><b>bKash</b>' + (SH.cod !== false ? " or <b>cash on delivery</b>" : "") + "</span>");
+    else if (SH.cod !== false) perks.push('<span><i>💵</i><b>Cash on delivery</b></span>');
+    perks.push('<span><i>⭐</i>Real <b>reader reviews</b></span>');
+    var strip = document.createElement("div");
+    strip.className = "perks reveal in"; strip.innerHTML = perks.join("");
+    grid.parentNode.insertBefore(strip, grid);
+  }
   grid.addEventListener("click", function (e) {
+    if (e.target.closest(".more")) return;
     var t = e.target.closest("[data-buy],[data-rev]"); if (!t) return;
     e.preventDefault();
     if (t.hasAttribute("data-buy")) openBuy(+t.getAttribute("data-buy")); else openReviews(+t.getAttribute("data-rev"));
@@ -370,11 +386,17 @@
   function route() {
     var m = location.hash.match(/^#(buy|reviews)\/(.+)$/); if (!m) return;
     var want = decodeURIComponent(m[2]), i = -1;
-    books.forEach(function (b, k) { if (bid(b, k) === want) i = k; });
+    // If two books ever share an ID, prefer the one that is for sale.
+    books.forEach(function (b, k) { if (bid(b, k) === want && (i < 0 || (onSale(b) && !onSale(books[i])))) i = k; });
     if (i < 0) return;
     var sec = $("books"); if (sec) sec.scrollIntoView({ block: "start" });
     if (m[1] === "buy" && onSale(books[i]) && !soldOut(books[i])) openBuy(i); else openReviews(i);
   }
   addEventListener("hashchange", route);
+  // Clicking the same #buy/… link twice doesn't change the address, so open the form directly then.
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest('a[href^="#buy/"],a[href^="#reviews/"]');
+    if (a && a.getAttribute("href") === location.hash) { e.preventDefault(); route(); }
+  });
   route();
 })();

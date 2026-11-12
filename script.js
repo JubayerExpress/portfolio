@@ -110,14 +110,15 @@
 
   /* ---------- Cards ---------- */
   $("booksGrid").innerHTML = (S.books || []).map(function (b, i) {
-    var cover = b.image
-      ? '<div class="cover">' + img(b.image, b.title) + "</div>"
-      : '<div class="cover" style="background:' + gradients[i % gradients.length] + '">' + esc(b.title) + "</div>";
-    return '<article class="card reveal" style="--d:' + (i * 0.08) + 's">' + cover +
+    // Each book stands as a 3D book on a lit "shelf"; an optional ribbon (Admin → Books → Ribbon) sits in the corner.
+    var cover = '<div class="bk-stage">' + (b.badge ? '<span class="bk-ribbon">' + esc(b.badge) + "</span>" : "") +
+      '<div class="bk"><div class="cover"' + (b.image ? ">" + img(b.image, b.title) : ' style="background:' + gradients[i % gradients.length] + '"><span class="bk-title">' + esc(b.title) + "</span>") +
+      '</div><i class="bk-pages" aria-hidden="true"></i></div></div>';
+    return '<article class="card book-card reveal" style="--d:' + (i * 0.08) + 's">' + cover + '<div class="bk-body">' +
       '<span class="meta">' + esc(b.year) + "</span><h3>" + esc(b.title) + "</h3>" +
       '<div class="blurb-wrap"><p class="blurb">' + esc(b.blurb) + '</p><button class="more" type="button" hidden aria-expanded="false">See more <span>▾</span></button></div>' +
       '<div class="chips">' + chips(b.tags) + "</div>" +
-      '<a class="link" ' + linkAttrs(b.link) + ">" + esc(b.linkText || "Read more") + " <span>→</span></a></article>";
+      '<a class="link" ' + linkAttrs(b.link) + ">" + esc(b.linkText || "Read more") + " <span>→</span></a></div></article>";
   }).join("");
 
   // Long book descriptions start folded; "See more" opens them. The button only appears when the text is actually cut off.

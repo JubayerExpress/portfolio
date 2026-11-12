@@ -442,3 +442,41 @@ html.has-ann{scroll-padding-top:106px}
 .cover-buy.sold-tag{background:rgba(10,12,28,.8);color:#fff;animation:none;cursor:default;box-shadow:none}
 .cover-off{position:absolute;left:10px;top:10px;z-index:2;padding:4px 10px;border-radius:999px;background:var(--lime);color:#10130a;font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:.8rem;font-style:normal;box-shadow:0 0 16px -2px var(--lime)}
 @media (prefers-reduced-motion:reduce){.cover-buy{animation:none}}
+
+/* ================= Bookstore look (Books section) ================= */
+.book-card{padding:0;gap:0;overflow:hidden}
+.bk-body{display:flex;flex-direction:column;gap:10px;flex:1;padding:20px 22px 22px}
+.bk-stage{position:relative;height:300px;display:grid;place-items:center;perspective:1100px;overflow:hidden;border-bottom:1px solid var(--line);
+  background:radial-gradient(55% 65% at 50% 42%,color-mix(in srgb,var(--a) 34%,transparent),transparent 72%),
+             radial-gradient(40% 40% at 70% 80%,color-mix(in srgb,var(--c) 18%,transparent),transparent 70%),
+             linear-gradient(180deg,color-mix(in srgb,var(--bg2) 30%,transparent),color-mix(in srgb,var(--bg) 75%,transparent))}
+.bk-stage::before{content:"";position:absolute;left:12%;right:12%;bottom:34px;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,color-mix(in srgb,#f2c46d 55%,transparent),transparent);opacity:.7}
+.bk-stage::after{content:"";position:absolute;bottom:24px;left:50%;width:170px;height:22px;transform:translateX(-50%);background:radial-gradient(closest-side,rgba(0,0,0,.6),transparent);filter:blur(3px);pointer-events:none}
+.bk{position:relative;z-index:1;height:224px;aspect-ratio:2/3;margin-bottom:14px;transform-style:preserve-3d;transform:rotateY(-24deg) rotateX(4deg);transition:transform .7s cubic-bezier(.2,.8,.2,1)}
+.book-card:hover .bk{transform:rotateY(-6deg) rotateX(2deg) translateY(-8px)}
+.bk .cover{position:absolute;inset:0;height:auto;margin:0;padding:0;border-radius:3px 8px 8px 3px;overflow:hidden;font-size:1.15rem;
+  box-shadow:22px 20px 34px -12px rgba(0,0,0,.75),0 0 0 1px rgba(255,255,255,.06) inset}
+.bk .cover img{border-radius:0;transform:none!important}
+.bk .cover>span.bk-title{padding:10px;line-height:1.2}
+.bk .cover::before{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:linear-gradient(90deg,rgba(0,0,0,.45) 0,rgba(255,255,255,.28) 2.5%,rgba(0,0,0,.18) 5%,transparent 11%,transparent 86%,rgba(255,255,255,.1) 100%)}
+.bk-pages{position:absolute;top:4px;bottom:4px;right:-11px;width:12px;border-radius:0 3px 3px 0;transform:rotateY(60deg);transform-origin:left center;
+  background:repeating-linear-gradient(0deg,#f6f1e6 0 1px,#d6cfbf 1px 2px);box-shadow:inset 3px 0 6px rgba(0,0,0,.25)}
+.bk-ribbon{position:absolute;z-index:3;top:20px;left:-46px;width:180px;padding:6px 0;transform:rotate(-45deg);text-align:center;
+  font-family:"Space Grotesk",sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#2b1d04;
+  background:linear-gradient(90deg,#f7dc96,#e8b04f,#f7dc96);box-shadow:0 6px 16px -4px rgba(232,176,79,.7)}
+.bk-stage .cover-off{left:auto;right:12px;top:12px}
+.bk-stage .cover-buy{right:12px;bottom:12px}
+.bk-stage.can-buy{cursor:pointer}
+/* price row with a touch of gold */
+.book-card .price{background:linear-gradient(120deg,#f7dc96,#e8b04f);-webkit-background-clip:text;background-clip:text;color:transparent}
+[data-theme="light"] .book-card .price{background:linear-gradient(120deg,#b7791f,#8a5a12);-webkit-background-clip:text;background-clip:text}
+.book-card .buy-row{border-color:color-mix(in srgb,#e8b04f 30%,var(--line))}
+.book-card:hover{border-color:color-mix(in srgb,#e8b04f 55%,var(--a))}
+/* perks strip */
+.perks{display:flex;flex-wrap:wrap;gap:10px;margin:-8px 0 22px}
+.perks span{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:999px;border:1px solid var(--line);background:var(--card);font-size:.88rem;color:var(--muted)}
+.perks b{color:var(--text);font-weight:600}
+.perks i{font-style:normal}
+@media (max-width:520px){.bk-stage{height:270px}.bk{height:200px}.perks{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-right:-4%;padding-right:4%}.perks::-webkit-scrollbar{display:none}.perks span{flex:none;font-size:.82rem;padding:8px 13px}}
+@media (prefers-reduced-motion:reduce){.bk{transition:none}}
