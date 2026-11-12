@@ -308,7 +308,12 @@
   }
 
   function fieldGrid(o, fields, onChange) {
-    return h("div", { class: "grid" }, fields.map(function (f) { return field(o, f, onChange); }));
+    // A field with when(o) only shows while that is true (e.g. price only when "Sell this book" is ticked).
+    var els = [];
+    function sync() { fields.forEach(function (f, i) { if (f.when) els[i].hidden = !f.when(o); }); }
+    els = fields.map(function (f) { return field(o, f, function () { sync(); if (onChange) onChange(); }); });
+    sync();
+    return h("div", { class: "grid" }, els);
   }
 
   function listEditor(arr, fields, opt) {
@@ -830,10 +835,11 @@
         { k: "tags", t: "tags", l: "Tags" }, { k: "link", t: "text", l: "Link (buy / read / download)" }, { k: "linkText", t: "text", l: "Button text" },
         { k: "image", t: "image", l: "Cover image", wide: true },
         { k: "forSale", t: "bool", l: "🛒 Sell this book on the site (shows price + Buy button)", wide: true },
-        { k: "price", t: "text", l: "Price (৳)", ph: "e.g. 350" }, { k: "oldPrice", t: "text", l: "Old price (optional, shown crossed out)", ph: "e.g. 450" },
-        { k: "soldOut", t: "bool", l: "Sold out for now (hides the Buy button)" },
+        { k: "price", t: "text", l: "Price (৳)", ph: "e.g. 350", when: function (b) { return !!b.forSale; } },
+        { k: "oldPrice", t: "text", l: "Old price (optional, shown crossed out)", ph: "e.g. 450", when: function (b) { return !!b.forSale; } },
+        { k: "soldOut", t: "bool", l: "⛔ Mark as SOLD OUT (only tick this when you have no copies left)", wide: true, when: function (b) { return !!b.forSale; } },
         { k: "id", t: "text", l: "Book ID", help: "Used to link orders and reviews to this book. Don't change it after people start ordering." }
-      ], { title: function (b) { return (b.forSale ? (b.soldOut ? "⛔ " : "🛒 ") : "") + (b.title || "Untitled book") + (b.forSale && b.price ? "  ·  ৳" + b.price : ""); },
+      ], { title: function (b) { return (b.forSale ? (b.soldOut ? "⛔ SOLD OUT · " : "🛒 ") : "") + (b.title || "Untitled book") + (b.forSale && b.price ? "  ·  ৳" + b.price : ""); },
            blank: function () { return { id: "book-" + Date.now().toString(36), title: "New book", year: today().slice(0, 4), blurb: "", tags: [], link: "", linkText: "Read more", image: "", forSale: false, price: "", oldPrice: "", soldOut: false }; }, add: "+ Add book", addFirst: true }))
     ]);
   }

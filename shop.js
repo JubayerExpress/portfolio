@@ -36,7 +36,9 @@
   var pendingCoupon = "";
   try { pendingCoupon = sessionStorage.getItem("coupon") || ""; } catch (e) {}
   function bid(b, i) { return String(b.id || "book-" + (i + 1)); }
-  function onSale(b) { return !!b.forSale && Number(b.price) > 0; }
+  function isOn(v) { return v === true || v === "true"; }
+  function onSale(b) { return isOn(b.forSale) && Number(b.price) > 0; }
+  function soldOut(b) { return isOn(b.soldOut); }
   function starRow(n) {
     n = Math.max(0, Math.min(5, Math.round(n)));
     return '<span class="rs" aria-hidden="true">' + "★".repeat(n) + '<i>' + "☆".repeat(5 - n) + "</i></span>";
@@ -57,7 +59,7 @@
     if (onSale(b)) {
       html += '<div class="buy-row"><div class="price">' + money(b.price) +
         (Number(b.oldPrice) > Number(b.price) ? "<s>" + money(b.oldPrice) + "</s>" : "") + "</div>" +
-        (b.soldOut ? '<span class="sold">Sold out</span>'
+        (soldOut(b) ? '<span class="sold">Sold out</span>'
                    : '<button class="btn primary small buy-btn" type="button" data-buy="' + i + '">Buy now</button>') + "</div>";
     }
     html += '<button class="rev-line" type="button" data-rev="' + i + '"><span data-stars="' + esc(id) + '">' + starRow(0) +
@@ -71,9 +73,9 @@
       var off = Number(b.oldPrice) > Number(b.price) ? Math.round((1 - Number(b.price) / Number(b.oldPrice)) * 100) : 0;
       cov.insertAdjacentHTML("beforeend",
         (off ? '<span class="cover-off">−' + off + "%</span>" : "") +
-        (b.soldOut ? '<span class="cover-buy sold-tag">Sold out</span>'
+        (soldOut(b) ? '<span class="cover-buy sold-tag">Sold out</span>'
                    : '<button class="cover-buy" type="button" data-buy="' + i + '" aria-label="Buy ' + esc(b.title) + '">🛒 Buy · ' + money(b.price) + "</button>"));
-      if (!b.soldOut) { cov.classList.add("can-buy"); cov.setAttribute("data-buy", i); }
+      if (!soldOut(b)) { cov.classList.add("can-buy"); cov.setAttribute("data-buy", i); }
     }
     var after = el.querySelector(".chips");
     if (after && after.nextSibling) el.insertBefore(box, after.nextSibling); else el.appendChild(box);
@@ -172,7 +174,7 @@
 
   /* ---------- checkout ---------- */
   function openBuy(i) {
-    var b = books[i]; if (!b || !onSale(b) || b.soldOut) return;
+    var b = books[i]; if (!b || !onSale(b) || soldOut(b)) return;
     curRev = null;
     var hasBk = !!String(SH.bkashNumber || "").trim(), hasCod = SH.cod !== false;
     var areas = AREAS.map(function (a, k) {
@@ -371,7 +373,7 @@
     books.forEach(function (b, k) { if (bid(b, k) === want) i = k; });
     if (i < 0) return;
     var sec = $("books"); if (sec) sec.scrollIntoView({ block: "start" });
-    if (m[1] === "buy" && onSale(books[i]) && !books[i].soldOut) openBuy(i); else openReviews(i);
+    if (m[1] === "buy" && onSale(books[i]) && !soldOut(books[i])) openBuy(i); else openReviews(i);
   }
   addEventListener("hashchange", route);
   route();
