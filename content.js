@@ -353,7 +353,13 @@ window.SITE = {
     ]
   },
   "announce": {
-    "enabled": false,
-    "items": []
+    "enabled": true,
+    "items": [
+      {
+        "text": "New notice",
+        "link": "",
+        "isNew": true
+      }
+    ]
   }
 };
