@@ -115,10 +115,31 @@
       : '<div class="cover" style="background:' + gradients[i % gradients.length] + '">' + esc(b.title) + "</div>";
     return '<article class="card reveal" style="--d:' + (i * 0.08) + 's">' + cover +
       '<span class="meta">' + esc(b.year) + "</span><h3>" + esc(b.title) + "</h3>" +
-      "<p>" + esc(b.blurb) + "</p>" +
+      '<div class="blurb-wrap"><p class="blurb">' + esc(b.blurb) + '</p><button class="more" type="button" hidden aria-expanded="false">See more <span>▾</span></button></div>' +
       '<div class="chips">' + chips(b.tags) + "</div>" +
       '<a class="link" ' + linkAttrs(b.link) + ">" + esc(b.linkText || "Read more") + " <span>→</span></a></article>";
   }).join("");
+
+  // Long book descriptions start folded; "See more" opens them. The button only appears when the text is actually cut off.
+  function foldBlurbs() {
+    document.querySelectorAll("#booksGrid .blurb-wrap").forEach(function (w) {
+      var p = w.querySelector(".blurb"), btn = w.querySelector(".more");
+      if (w.classList.contains("open")) return;
+      btn.hidden = p.scrollHeight <= p.clientHeight + 2;
+    });
+  }
+  $("booksGrid").addEventListener("click", function (e) {
+    var btn = e.target.closest(".more"); if (!btn) return;
+    var w = btn.parentNode, open = !w.classList.contains("open");
+    w.classList.toggle("open", open);
+    btn.setAttribute("aria-expanded", String(open));
+    btn.innerHTML = open ? "See less <span>▴</span>" : "See more <span>▾</span>";
+    if (!open) w.closest("article").scrollIntoView({ block: "nearest", behavior: reduce ? "auto" : "smooth" });
+  });
+  requestAnimationFrame(foldBlurbs);
+  addEventListener("load", foldBlurbs);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(foldBlurbs);
+  addEventListener("resize", foldBlurbs);
 
   $("researchList").innerHTML = (S.research || []).map(function (r, i) {
     return '<article class="t-item reveal' + (r.image ? " has-img" : "") + '" style="--d:' + (i * 0.08) + 's">' +

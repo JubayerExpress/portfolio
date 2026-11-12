@@ -66,6 +66,15 @@
     var link = el.querySelector(".link");
     // An empty or "#" link was only a placeholder for buying; the Buy button replaces it.
     if (link && onSale(b) && (!b.link || b.link === "#")) link.remove();
+    var cov = el.querySelector(".cover");
+    if (cov && onSale(b)) {
+      var off = Number(b.oldPrice) > Number(b.price) ? Math.round((1 - Number(b.price) / Number(b.oldPrice)) * 100) : 0;
+      cov.insertAdjacentHTML("beforeend",
+        (off ? '<span class="cover-off">−' + off + "%</span>" : "") +
+        (b.soldOut ? '<span class="cover-buy sold-tag">Sold out</span>'
+                   : '<button class="cover-buy" type="button" data-buy="' + i + '" aria-label="Buy ' + esc(b.title) + '">🛒 Buy · ' + money(b.price) + "</button>"));
+      if (!b.soldOut) { cov.classList.add("can-buy"); cov.setAttribute("data-buy", i); }
+    }
     var after = el.querySelector(".chips");
     if (after && after.nextSibling) el.insertBefore(box, after.nextSibling); else el.appendChild(box);
   });
