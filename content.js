@@ -101,10 +101,10 @@ window.SITE = {
         "Romance",
         "Fiction"
       ],
-      "link": "#",
+      "link": "#buy",
       "linkText": "Collect Now!",
       "image": "assets/uploads/1794509133404-title.jpg",
-      "id": "book1",
+      "id": "book-1",
       "forSale": true,
       "price": "350",
       "soldOut": true,
@@ -356,9 +356,19 @@ window.SITE = {
     "enabled": true,
     "items": [
       {
-        "text": "New notice",
-        "link": "",
+        "text": "📖 নতুন বই এসেছে! “তুমি আমি আর কিছু নামহীন চিঠি” — এখনই অর্ডার করো",
+        "link": "#buy/book-1",
         "isNew": true
+      },
+      {
+        "text": "🎓 BRAC University-তে ফ্রি ডেলিভারি! bKash বা ক্যাশ অন ডেলিভারি",
+        "link": "#books",
+        "isNew": false
+      },
+      {
+        "text": "🎟️ কুপন কোড START10 ব্যবহার করলে ১০% ছাড়!",
+        "link": "#books",
+        "isNew": false
       }
     ]
   }
