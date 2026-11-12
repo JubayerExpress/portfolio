@@ -103,7 +103,8 @@ window.SITE = {
       ],
       "link": "",
       "linkText": "Learn More",
-      "image": "assets/uploads/1794508661707-my-journey-to-engineering.jpg"
+      "image": "assets/uploads/1794508661707-my-journey-to-engineering.jpg",
+      "id": "book-1"
     },
     {
       "title": "অহর্নিশ জাগরণ",
@@ -116,7 +117,8 @@ window.SITE = {
       ],
       "link": "#",
       "linkText": "Learn More",
-      "image": "assets/uploads/1794509023583-post.jpg"
+      "image": "assets/uploads/1794509023583-post.jpg",
+      "id": "book-2"
     },
     {
       "title": "তুমি আমি আর কিছু নামহীন চিঠি",
@@ -128,7 +130,8 @@ window.SITE = {
       ],
       "link": "#",
       "linkText": "Collect Now!",
-      "image": "assets/uploads/1794509133404-title.jpg"
+      "image": "assets/uploads/1794509133404-title.jpg",
+      "id": "book-3"
     }
   ],
   "research": [
@@ -321,5 +324,32 @@ window.SITE = {
         "website": "https://www.bracu.ac.bd"
       }
     ]
+  },
+  "shop": {
+    "enabled": true,
+    "endpoint": "https://script.google.com/macros/s/AKfycbz5wCLydj6sBSj1IIVHx8bs76inwTC-CjBAbv7EbAK266GdzieDuRw-qpnkg_UB8nCCyg/exec",
+    "currency": "৳",
+    "bkashNumber": "01518912604",
+    "bkashType": "Personal",
+    "cod": true,
+    "freeNote": "🎓 BRAC University-তে ফ্রি ডেলিভারি!",
+    "delivery": [
+      {
+        "label": "BRAC University (campus)",
+        "fee": 0
+      },
+      {
+        "label": "Inside Dhaka",
+        "fee": 60
+      },
+      {
+        "label": "Outside Dhaka",
+        "fee": 120
+      }
+    ]
+  },
+  "announce": {
+    "enabled": false,
+    "items": []
   }
 };
