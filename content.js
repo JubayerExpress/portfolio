@@ -101,10 +101,14 @@ window.SITE = {
         "Romance",
         "Fiction"
       ],
-      "link": "buy",
+      "link": "BUY",
       "linkText": "Collect Now!",
       "image": "assets/uploads/1794509133404-title.jpg",
-      "id": "book-3"
+      "id": "book1",
+      "forSale": true,
+      "price": "350",
+      "soldOut": true,
+      "oldPrice": "400"
     },
     {
       "title": "My Journey to Engineering",
