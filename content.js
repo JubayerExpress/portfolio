@@ -101,7 +101,7 @@ window.SITE = {
         "Romance",
         "Fiction"
       ],
-      "link": "#",
+      "link": "buy",
       "linkText": "Collect Now!",
       "image": "assets/uploads/1794509133404-title.jpg",
       "id": "book-3"
