@@ -388,10 +388,11 @@ window.SITE = {
       {
         "name": "BRAC University",
         "short": "BRACU",
-        "logo": "",
+        "logo": "assets/uploads/1794509164803-images.jpg",
         "roles": [
           "B.Sc. in CSE · Currently pursuing",
-          "Machine Learning Instructor · 2026"
+          "Machine Learning Instructor · 2026",
+          "Robotics Instructor · 2024-2025"
         ],
         "description": "My university in Dhaka, where I study computer science and engineering.",
         "facebook": "https://www.facebook.com/BRACUniversity",
