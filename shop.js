@@ -113,8 +113,11 @@
     });
   }
   /* ---------- coupon tickets above the books (only coupons marked "Show on site") ---------- */
+  var PUBLIC_CP = [], cpListeners = [];
   fetch(SH.endpoint + "?action=coupons").then(function (r) { return r.json(); }).then(function (j) {
     var list = (j && j.coupons) || [];
+    PUBLIC_CP = list;
+    cpListeners.forEach(function (fn) { try { fn(); } catch (e) {} });
     if (!list.length) return;
     var strip = document.createElement("div");
     strip.className = "cp-strip";
@@ -392,6 +395,15 @@
     reviews: function (b, i) { return REV[bid(b, i)] || []; },
     loaded: function () { return revLoaded; },
     onReviews: function (fn) { revListeners.push(fn); },
+    // coupons marked "Show on site" that work for this book right now
+    coupons: function (b, i) { var id = bid(b, i); return PUBLIC_CP.filter(function (c) { return !c.book || c.book === id; }); },
+    onCoupons: function (fn) { cpListeners.push(fn); },
+    offer: offer, terms: terms,
+    useCoupon: function (code, i) {
+      pendingCoupon = code;
+      try { sessionStorage.setItem("coupon", code); } catch (e) {}
+      openBuy(i);
+    },
     perks: function () {
       var out = [], free = AREAS.filter(function (a) { return !(Number(a.fee) > 0); })[0];
       if (free) out.push("🚚 Free delivery · " + free.label);

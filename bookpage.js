@@ -102,16 +102,38 @@
     if (p) { e.preventDefault(); go(+p.getAttribute("data-page")); }
   });
 
+  /* ---------- headlines (Admin → Announcement) running in the page's top bar ---------- */
+  function newsBar() {
+    var AN = S.announce || {};
+    var items = (AN.items || []).filter(function (x) { return x && String(x.text || "").trim(); });
+    if (!AN.enabled || !items.length) return "";
+    var dot = '<i class="bpn-dot" aria-hidden="true">✦</i>';
+    var one = items.map(function (x) {
+      var inner = (x.isNew ? '<em class="ann-new">NEW</em>' : "") + "<span>" + esc(x.text) + "</span>";
+      var link = String(x.link || "").trim();
+      if (!link) return '<span class="bpn-i">' + inner + "</span>";
+      var ext = /^https?:/.test(link);
+      return '<a class="bpn-i" href="' + esc(safe(link)) + '"' + (ext ? ' target="_blank" rel="noopener"' : "") + ">" + inner + "</a>";
+    }).join(dot) + dot;
+    var run = one + one + one;   // long enough to fill the bar
+    return '<div class="bp-news' + (reduce ? " still" : "") + '" role="region" aria-label="Announcements"><div class="bpn-track" style="--bpn-dur:' +
+      Math.max(20, items.length * 9) + 's"><div class="bpn-run">' + run + "</div>" + (reduce ? "" : '<div class="bpn-run" aria-hidden="true">' + run + "</div>") + "</div></div>";
+  }
+
   /* ---------- the page ---------- */
   var page = document.createElement("div");
   page.className = "bp"; page.id = "bookPage"; page.hidden = true;
   page.setAttribute("role", "dialog"); page.setAttribute("aria-modal", "true"); page.setAttribute("aria-labelledby", "bpTitle");
   page.innerHTML = '<div class="bp-bar"><button class="bp-back" type="button" data-close>← <span>All books</span></button>' +
-    '<span class="bp-crumb" id="bpCrumb"></span>' +
+    '<span class="bp-crumb" id="bpCrumb"></span>' + newsBar() +
     '<div class="bp-bar-r"><button class="bp-ic" type="button" id="bpShare" aria-label="Share this book" title="Share">' + ICON_SHARE + "</button>" +
     '<button class="bp-ic" type="button" data-close aria-label="Close" title="Close">✕</button></div></div>' +
-    '<div class="bp-scroll" id="bpScroll"><div class="bp-in" id="bpIn"></div></div>';
+    '<div class="bp-scroll" id="bpScroll"><div class="bp-in" id="bpIn"></div></div>' +
+    '<div class="bp-offers" id="bpOffers" hidden><div class="bpo-panel" id="bpoPanel" hidden role="dialog" aria-label="Available coupons"></div>' +
+    '<button class="bpo-btn" type="button" id="bpoBtn" aria-expanded="false"><span class="bpo-ico" aria-hidden="true">🎟️</span><span class="bpo-txt">Offers</span><b class="bpo-n" id="bpoN"></b></button></div>';
   document.body.appendChild(page);
+  page.querySelectorAll('.bpn-run[aria-hidden] a').forEach(function (a) { a.tabIndex = -1; });
+  if (page.querySelector(".bp-news")) page.classList.add("has-news");
   var inner = $("bpIn"), scroller = $("bpScroll"), cur = -1, pushed = false, oldTitle = document.title;
 
   function render(i) {
@@ -162,20 +184,57 @@
     inner.innerHTML = html;
     inner.querySelectorAll('.reel-run[aria-hidden] a').forEach(function (a) { a.tabIndex = -1; });
     $("bpCrumb").textContent = b.title;
+    paintOffers(i);
     document.title = b.title + " — Books by Jubayer";
   }
+
+  /* ---------- floating "Offers" button: live coupons for this book ---------- */
+  function liveCoupons(i) {
+    var sh = SHOP(), b = books[i];
+    if (!sh || !sh.coupons || !sh.onSale(b) || sh.soldOut(b)) return [];
+    return sh.coupons(b, i);
+  }
+  function paintOffers(i) {
+    var list = liveCoupons(i), box = $("bpOffers"), panel = $("bpoPanel"), sh = SHOP();
+    box.hidden = !list.length;
+    panel.hidden = true; $("bpoBtn").setAttribute("aria-expanded", "false");
+    if (!list.length) return;
+    $("bpoN").textContent = list.length;
+    panel.innerHTML = '<div class="bpo-head"><b>🎉 Available offers</b><button type="button" class="bpo-x" aria-label="Close">✕</button></div>' +
+      list.map(function (c) {
+        var t = sh.terms(c);
+        return '<div class="bpo-cp"><div class="bpo-l"><span>' + esc(sh.offer(c)) + "</span>" + (c.note ? "<small>" + esc(c.note) + "</small>" : "") + "</div>" +
+          '<div class="bpo-r"><b class="mono">' + esc(c.code) + "</b>" + (t ? "<em>" + esc(t) + "</em>" : "") +
+          '<button type="button" class="bpo-use" data-code="' + esc(c.code) + '">Use this coupon →</button></div></div>';
+      }).join("") + '<p class="bpo-foot">The coupon is added to your order form automatically.</p>';
+  }
+  page.addEventListener("click", function (e) {
+    var btn = e.target.closest("#bpoBtn"), panel = $("bpoPanel");
+    if (btn) {
+      panel.hidden = !panel.hidden; btn.setAttribute("aria-expanded", String(!panel.hidden));
+      if (!panel.hidden) { var f = panel.querySelector(".bpo-use"); if (f) f.focus({ preventScroll: true }); }
+      return;
+    }
+    if (e.target.closest(".bpo-x")) { panel.hidden = true; $("bpoBtn").setAttribute("aria-expanded", "false"); return; }
+    var use = e.target.closest(".bpo-use");
+    if (use && cur >= 0 && SHOP()) { panel.hidden = true; $("bpoBtn").setAttribute("aria-expanded", "false"); SHOP().useCoupon(use.getAttribute("data-code"), cur); return; }
+    if (!panel.hidden && !e.target.closest(".bp-offers")) { panel.hidden = true; $("bpoBtn").setAttribute("aria-expanded", "false"); }
+  });
+  var sh1 = SHOP(); if (sh1 && sh1.onCoupons) sh1.onCoupons(function () { if (cur >= 0) paintOffers(cur); });
 
   function show(i) {
     if (i < 0) return;
     var wasHidden = page.hidden;
     cur = i; render(i);
     page.hidden = false; document.body.classList.add("lock");
+    document.documentElement.classList.add("bp-open");   // keeps the announcement bar visible on top
     scroller.scrollTop = 0;
     if (wasHidden) setTimeout(function () { var f = page.querySelector(".bp-back"); if (f) f.focus({ preventScroll: true }); }, 50);
   }
   function hide() {
     if (page.hidden) return;
     page.hidden = true; cur = -1; closePop();
+    document.documentElement.classList.remove("bp-open");
     document.title = oldTitle;
     var r = $("reader"), sm = document.querySelector(".sm");
     if ((!r || r.hidden) && (!sm || sm.hidden)) document.body.classList.remove("lock");
@@ -194,6 +253,18 @@
     } else hide();
   }
   page.addEventListener("click", function (e) {
+    var news = e.target.closest(".bpn-i[href^='#']");
+    if (news) {
+      var h = news.getAttribute("href"), m = h.match(/^#(buy|reviews)\/(.+)$/), sh0 = SHOP();
+      if (m && sh0) {
+        var k = findBook(m[2]);
+        if (k >= 0) { e.preventDefault(); if (m[1] === "buy" && sh0.onSale(books[k]) && !sh0.soldOut(books[k])) sh0.openBuy(k); else sh0.openReviews(k); return; }
+      }
+      if (/^#book\//.test(h)) { pushed = true; return; }       // another book's page
+      e.preventDefault(); hide(); history.replaceState(null, "", h);   // a section like #books
+      var t = document.getElementById(h.slice(1)); if (t) t.scrollIntoView({ block: "start" });
+      return;
+    }
     if (e.target.closest("[data-close]")) { e.preventDefault(); close(); return; }
     var a = e.target.closest("[data-bp]"), sh = SHOP();
     if (a) {
@@ -217,8 +288,8 @@
     close();
   }, true);
   // pause the rolling strip while it's touched or hovered
-  page.addEventListener("touchstart", function (e) { var r = e.target.closest(".reel"); if (r) r.classList.add("hold"); }, { passive: true });
-  page.addEventListener("touchend", function (e) { var r = e.target.closest(".reel"); if (r) setTimeout(function () { r.classList.remove("hold"); }, 1200); }, { passive: true });
+  page.addEventListener("touchstart", function (e) { var r = e.target.closest(".reel,.bp-news"); if (r) r.classList.add("hold"); }, { passive: true });
+  page.addEventListener("touchend", function (e) { var r = e.target.closest(".reel,.bp-news"); if (r) setTimeout(function () { r.classList.remove("hold"); }, 1200); }, { passive: true });
   // reviews arrive after the page may already be open
   var sh0 = SHOP(); if (sh0) sh0.onReviews(function () { if (cur >= 0) { var st = scroller.scrollTop; render(cur); scroller.scrollTop = st; } });
 
