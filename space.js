@@ -59,8 +59,14 @@
   }
   var nextShoot = 6000;
 
-  var t0 = performance.now(), last = t0;
+  var t0 = performance.now(), last = t0, lastMove = 0, lastSY = scrollY;
   function frame(now) {
+    // When nothing is moving (no scroll, no mouse, no warp or shooting star), the stars only twinkle,
+    // so drawing every other frame looks the same and halves the work.
+    if (!reduce && scrollY === lastSY && now - lastMove > 600 && warp <= 0 && !shooters.length && Math.abs(vel) < 0.05 && now - last < 30) {
+      requestAnimationFrame(frame); return;
+    }
+    lastSY = scrollY;
     var raw = now - last, dt = Math.min(48, raw); last = now;
     var t = (now - t0) / 1000;
     var light = root.dataset.theme === "light";
@@ -161,7 +167,7 @@
 
   addEventListener("scroll", function () { scrollY = window.scrollY; }, { passive: true });
   addEventListener("pointermove", function (e) {
-    tmx = e.clientX / innerWidth - 0.5; tmy = e.clientY / innerHeight - 0.5;
+    tmx = e.clientX / innerWidth - 0.5; tmy = e.clientY / innerHeight - 0.5; lastMove = performance.now();
     pmx = e.clientX * DPR; pmy = e.clientY * DPR;
   }, { passive: true });
   document.addEventListener("pointerleave", function () { pmx = pmy = -9999; });
@@ -193,20 +199,40 @@
   }
 
   var heroText = document.querySelector(".hero-text"), heroArt = $("heroArt"), heroSec = $("home");
+  // Section positions are measured once (and again only when the page size changes),
+  // so the animation loop never has to ask the browser for a fresh layout.
+  var geoDirty = true, worldY = -1, heroDone = false;
+  function measure() {
+    var y = window.scrollY;
+    for (var i = 0; i < planets.length; i++) { var r = planets[i].sec.getBoundingClientRect(); planets[i].top = r.top + y; planets[i].h = r.height; }
+    secTops = secEls.map(function (el) { return el ? el.getBoundingClientRect().top + y : 0; });
+    geoDirty = false; worldY = -1;
+  }
+  var secTops = [];
+  if (window.ResizeObserver) new ResizeObserver(function () { geoDirty = true; }).observe(document.body);
+  addEventListener("resize", function () { geoDirty = true; });
+  addEventListener("load", function () { geoDirty = true; });
   function updateWorld() {
-    if (!reduce && heroText && scrollY < innerHeight * 1.3) {
-      var k = Math.min(1, scrollY / (innerHeight * 0.8));
-      heroText.style.translate = "0 " + (scrollY * 0.14).toFixed(1) + "px";
-      heroText.style.opacity = (1 - k * 0.85).toFixed(3);
-      heroArt.style.translate = "0 " + (scrollY * 0.26).toFixed(1) + "px";
-      heroArt.style.scale = (1 - k * 0.12).toFixed(3);
-    }
-    if (!reduce) {
-      for (var i = 0; i < planets.length; i++) {
-        var p = planets[i], r = p.sec.getBoundingClientRect();
-        if (r.bottom < -200 || r.top > innerHeight + 200) continue;
-        var off = (r.top + r.height / 2 - innerHeight / 2) * p.speed;
-        p.el.style.translate = "0 " + off.toFixed(1) + "px";
+    if (geoDirty) measure();
+    if (scrollY !== worldY) {             // nothing to move while the page is still
+      worldY = scrollY;
+      if (!reduce && heroText) {
+        if (scrollY < innerHeight * 1.3) {
+          var k = Math.min(1, scrollY / (innerHeight * 0.8));
+          heroText.style.translate = "0 " + (scrollY * 0.14).toFixed(1) + "px";
+          heroText.style.opacity = (1 - k * 0.85).toFixed(3);
+          heroArt.style.translate = "0 " + (scrollY * 0.26).toFixed(1) + "px";
+          heroArt.style.scale = (1 - k * 0.12).toFixed(3);
+          heroDone = false;
+        } else if (!heroDone) { heroText.style.opacity = "0.15"; heroDone = true; }
+      }
+      if (!reduce) {
+        for (var i = 0; i < planets.length; i++) {
+          var p = planets[i], top = p.top - scrollY;
+          if (top + p.h < -200 || top > innerHeight + 200) continue;
+          var off = (top + p.h / 2 - innerHeight / 2) * p.speed;
+          p.el.style.translate = "0 " + off.toFixed(1) + "px";
+        }
       }
     }
     hudTick();
@@ -220,10 +246,12 @@
     if (!hudAlt) return;
     var target = Math.round(scrollY * 1.7);
     shownAlt += (target - shownAlt) * 0.15;
-    hudAlt.textContent = Math.round(shownAlt).toLocaleString("en-US");
+    if (Math.abs(target - shownAlt) < 0.5) shownAlt = target;
+    var altTxt = Math.round(shownAlt).toLocaleString("en-US");
+    if (hudAlt.textContent !== altTxt) hudAlt.textContent = altTxt;
     var idx = 0;
     for (var i = 0; i < secEls.length; i++) {
-      if (secEls[i] && secEls[i].getBoundingClientRect().top < innerHeight * 0.45) idx = i;
+      if (secEls[i] && secTops[i] - scrollY < innerHeight * 0.45) idx = i;
     }
     var nm = secIds[idx].toUpperCase();
     if (hudSec.textContent !== nm) hudSec.textContent = nm;

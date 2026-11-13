@@ -71,8 +71,9 @@
 .tile::after,.card::after,.t-item::after,.bento>*::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;
   background:conic-gradient(from var(--ang),transparent 0 62%,var(--b),var(--a),var(--c),transparent);
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;
-  opacity:0;transition:opacity .45s;animation:ang 3.6s linear infinite}
-.tile:hover::after,.card:hover::after,.t-item:hover::after,.bento>*:hover::after{opacity:1}
+  opacity:0;transition:opacity .45s}
+/* the spinning border only runs while hovered (it used to spin invisibly on every card, all the time) */
+.tile:hover::after,.card:hover::after,.t-item:hover::after,.bento>*:hover::after{opacity:1;animation:ang 3.6s linear infinite}
 @keyframes ang{to{--ang:360deg}}
 .bento>*{position:relative;overflow:hidden}
 .tile:hover,.card:hover{box-shadow:0 24px 60px -24px rgba(124,92,255,.7),0 0 40px -16px rgba(34,211,238,.5)}

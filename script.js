@@ -417,14 +417,31 @@
   var nav = $("nav"), prog = $("progress"), toTop = $("toTop");
   var links = Array.prototype.slice.call(document.querySelectorAll("[data-link]"));
   var sections = links.map(function (a) { return document.querySelector(a.getAttribute("href")); });
+  // Section positions and page height are measured once and again only when the page changes size,
+  // so scrolling never forces the browser to re-measure the whole page.
+  var secTop = [], docH = 0, navDirty = true, scrollQueued = false, lastIdx = -1;
+  function measureNav() {
+    var y = window.scrollY;
+    secTop = sections.map(function (s) { return s ? s.getBoundingClientRect().top + y : 0; });
+    docH = document.documentElement.scrollHeight - innerHeight;
+    navDirty = false;
+  }
+  if (window.ResizeObserver) new ResizeObserver(function () { navDirty = true; onScroll(); }).observe(document.body);
+  addEventListener("resize", function () { navDirty = true; onScroll(); });
   function onScroll() {
-    var y = window.scrollY, h = document.documentElement.scrollHeight - innerHeight;
-    nav.classList.toggle("scrolled", y > 30);
-    prog.style.width = (h > 0 ? (y / h) * 100 : 0) + "%";
-    toTop.classList.toggle("show", y > 600);
-    var idx = 0;
-    sections.forEach(function (s, i) { if (s && s.getBoundingClientRect().top < innerHeight * 0.4) idx = i; });
-    links.forEach(function (a, i) { a.classList.toggle("active", i === idx); });
+    if (scrollQueued) return;
+    scrollQueued = true;
+    requestAnimationFrame(function () {
+      scrollQueued = false;
+      if (navDirty) measureNav();
+      var y = window.scrollY;
+      nav.classList.toggle("scrolled", y > 30);
+      prog.style.transform = "translateX(" + ((docH > 0 ? Math.min(1, y / docH) : 0) * 100 - 100).toFixed(2) + "%)";
+      toTop.classList.toggle("show", y > 600);
+      var idx = 0;
+      for (var i = 0; i < secTop.length; i++) if (sections[i] && secTop[i] - y < innerHeight * 0.4) idx = i;
+      if (idx !== lastIdx) { lastIdx = idx; links.forEach(function (a, i) { a.classList.toggle("active", i === idx); }); }
+    });
   }
   addEventListener("scroll", onScroll, { passive: true }); onScroll();
   toTop.addEventListener("click", function () { scrollTo({ top: 0, behavior: "smooth" }); });
@@ -448,20 +465,30 @@
   /* ---------- Cursor glow, ring, card tilt, magnetic buttons, sticker parallax ---------- */
   var glow = $("glow"), ring = $("ring"), rx = 0, ry = 0, tx = 0, ty = 0;
   var fine = window.matchMedia("(pointer:fine)").matches;
-  addEventListener("pointermove", function (e) {
-    glow.style.left = e.clientX + "px"; glow.style.top = e.clientY + "px";
-    tx = e.clientX; ty = e.clientY;
-    if (fine) ring.classList.add("on");
-    ring.classList.toggle("big", !!(e.target.closest && e.target.closest("a,button,.card,.pill")));
-  }, { passive: true });
-  if (fine && !reduce) (function loop() {
+  var ringOn = false, ringBig = false, ringRun = false;
+  function ringLoop() {
     rx += (tx - rx) * 0.18; ry += (ty - ry) * 0.18;
-    ring.style.left = rx + "px"; ring.style.top = ry + "px";
-    requestAnimationFrame(loop);
-  })();
+    if (Math.abs(tx - rx) < 0.3 && Math.abs(ty - ry) < 0.3) { rx = tx; ry = ty; ringRun = false; }
+    ring.style.transform = "translate3d(" + rx.toFixed(1) + "px," + ry.toFixed(1) + "px,0) translate(-50%,-50%)";
+    if (ringRun) requestAnimationFrame(ringLoop);
+  }
+  addEventListener("pointermove", function (e) {
+    glow.style.transform = "translate3d(" + e.clientX + "px," + e.clientY + "px,0) translate(-50%,-50%)";
+    tx = e.clientX; ty = e.clientY;
+    if (fine && !ringOn) { ringOn = true; ring.classList.add("on"); }
+    var big = !!(e.target.closest && e.target.closest("a,button,.card,.pill"));
+    if (big !== ringBig) { ringBig = big; ring.classList.toggle("big", big); }
+    if (fine && !reduce && !ringRun) { ringRun = true; requestAnimationFrame(ringLoop); }
+    else if (reduce) { rx = tx; ry = ty; ring.style.transform = "translate3d(" + tx + "px," + ty + "px,0) translate(-50%,-50%)"; }
+  }, { passive: true });
 
+  var tiltEv = null, tiltQueued = false;
   document.addEventListener("pointermove", function (e) {
     if (reduce) return;
+    tiltEv = e;
+    if (!tiltQueued) { tiltQueued = true; requestAnimationFrame(function () { tiltQueued = false; tilt(tiltEv); }); }
+  }, { passive: true });
+  function tilt(e) {
     var t = e.target.closest ? e.target : null;
     if (!t) return;
     var card = t.closest(".card");
@@ -475,7 +502,7 @@
       var b = m.getBoundingClientRect();
       m.style.transform = "translate(" + ((e.clientX - (b.left + b.width / 2)) * 0.25) + "px," + ((e.clientY - (b.top + b.height / 2)) * 0.35) + "px)";
     }
-  });
+  }
   document.addEventListener("pointerout", function (e) {
     var from = e.target.closest ? e.target : null;
     if (!from) return;
@@ -495,6 +522,17 @@
     });
     art.firstElementChild.style.transform = "translate(" + (cx * -10) + "px," + (cy * -10) + "px)";
   }, { passive: true });
+
+  /* ---------- Pause animations that are off screen ----------
+     Sections (and the tickers) get the class "is-off" while they're out of view;
+     style.css pauses every animation inside them, so the browser only animates what you can see. */
+  if ("IntersectionObserver" in window) {
+    var offIO = new IntersectionObserver(function (es) {
+      es.forEach(function (en) { en.target.classList.toggle("is-off", !en.isIntersecting); });
+    }, { rootMargin: "150px 0px" });
+    document.querySelectorAll("main > section, .ticker").forEach(function (el) { offIO.observe(el); });
+    setTimeout(function () { document.querySelectorAll(".ticker").forEach(function (el) { offIO.observe(el); }); }, 500);
+  }
 
   route();
 })();
