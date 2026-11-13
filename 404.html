@@ -4,6 +4,9 @@
 <script>
   // jubayer.bond/blog, /courses, /contact, /book … → jump to that section of the main page
   (function () {
+    // jubayer.bond/books/<book-link-name> before its preview page exists → open that book
+    var bk = location.pathname.replace(/\/+$/, "").match(/^\/books\/([^\/]+)$/i);
+    if (bk) { location.replace("/" + location.search + "#book/" + bk[1]); return; }
     var m = location.pathname.toLowerCase().replace(/\/+$/, "").match(/^\/(home|about|education|books?|shop|store|research|courses?|blog|contact)$/);
     if (!m) return;
     var map = { home: "home", book: "books", shop: "books", store: "books", course: "courses" };

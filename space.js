@@ -25,12 +25,21 @@
   sprites = [sprite("124,92,255"), sprite("34,211,238"), sprite("255,107,203"), sprite("255,190,120")];
   var tints = ["255,255,255", "190,210,255", "255,235,200", "170,230,255", "255,200,235"];
 
+  // Phones fire "resize" whenever the address bar slides in or out while scrolling.
+  // The canvas is sized to the tallest view (CSS 100lvh), and stars are only re-made when the width
+  // really changes (e.g. rotating the phone), so the sky never jumps.
+  var lastCW = 0, lastCH = 0;
   function build() {
-    W = cv.width = Math.floor(innerWidth * DPR);
-    H = cv.height = Math.floor(innerHeight * DPR);
-    var n = Math.min(260, Math.floor(innerWidth * innerHeight / 5200));
+    var cw = cv.clientWidth || innerWidth, ch = cv.clientHeight || innerHeight;
+    if (cw === lastCW && ch === lastCH) return;
+    var keep = cw === lastCW && stars && stars.length;
+    lastCW = cw; lastCH = ch;
+    W = cv.width = Math.floor(cw * DPR);
+    H = cv.height = Math.floor(ch * DPR);
+    if (keep) return;
+    var n = Math.min(260, Math.floor(cw * ch / 5200));
     dust = [];
-    for (var d = 0; d < (innerWidth < 700 ? 5 : 10); d++) {
+    for (var d = 0; d < (cw < 700 ? 5 : 10); d++) {
       dust.push({ x: rnd(), y: rnd(), z: 0.3 + rnd() * 0.7, r: (60 + rnd() * 130) * DPR, s: sprites[(rnd() * sprites.length) | 0], sp: 0.004 + rnd() * 0.012, ph: rnd() * 6.28, a: 0.35 + rnd() * 0.5 });
     }
     stars = [];
@@ -167,6 +176,7 @@
 
   addEventListener("scroll", function () { scrollY = window.scrollY; }, { passive: true });
   addEventListener("pointermove", function (e) {
+    if (e.pointerType && e.pointerType !== "mouse") return;   // fingers scroll the page; they don't steer the sky
     tmx = e.clientX / innerWidth - 0.5; tmy = e.clientY / innerHeight - 0.5; lastMove = performance.now();
     pmx = e.clientX * DPR; pmy = e.clientY * DPR;
   }, { passive: true });
@@ -266,7 +276,11 @@
 
   /* ---------------- FX canvas: comet trail + click bursts ---------------- */
   var fx = $("fx"), fctx = fx.getContext("2d"), parts = [], running = false, FW, FH;
-  function fxSize() { FW = fx.width = Math.floor(innerWidth * DPR); FH = fx.height = Math.floor(innerHeight * DPR); }
+  function fxSize() {
+    var w = Math.floor((fx.clientWidth || innerWidth) * DPR), h = Math.floor((fx.clientHeight || innerHeight) * DPR);
+    if (w === FW && h === FH) return;             // address-bar resizes on phones: nothing to do
+    FW = fx.width = w; FH = fx.height = h;
+  }
   addEventListener("resize", fxSize); fxSize();
   var palette = ["#7c5cff", "#22d3ee", "#ff6bcb", "#c6ff3d", "#ffffff"];
 
@@ -322,6 +336,7 @@
     }, { passive: true });
 
     addEventListener("pointerdown", function (e) {
+      if (e.pointerType !== "mouse") return;   // no sparkle burst on touch screens
       ring(e.clientX, e.clientY, "#22d3ee");
       for (var i = 0; i < 12; i++) {
         var a = rnd() * 6.283, sp = 1.2 + rnd() * 3;

@@ -92,6 +92,7 @@
       if (!id || seenIds[id]) { var n = i + 1; do { id = "book-" + n++; } while (seenIds[id] || d.books.some(function (x) { return x !== b && x.id === id; })); b.id = id; }
       seenIds[id] = true;
     });
+    assignSlugs(d.books);
     d.shop = d.shop || {};
     var SD = { enabled: true, endpoint: "", currency: "৳", bkashNumber: "", bkashType: "Personal", cod: true, freeNote: "🎓 BRAC University-তে ফ্রি ডেলিভারি!" };
     Object.keys(SD).forEach(function (k) { if (d.shop[k] == null) d.shop[k] = SD[k]; });
@@ -110,12 +111,28 @@
       if (j.content) return unb64(j.content);
       return api(q, { headers: { Accept: "application/vnd.github.raw+json" } }).then(function (r) { return r.text(); });
     }).then(function (text) {
-      D = normalize(parseContent(text));
-      connected = true; local = false; dirty = false;
+      var raw = parseContent(text);
+      var hadLinks = (raw.books || []).every(function (b) { return b && b.slug; });
+      D = normalize(raw);
+      connected = true; local = false;
+      // Books that just got their share-link names need one Save to publish them (and their previews).
+      dirty = !hadLinks && D.books.length > 0;
       refresh();
     });
   }
+  // Every book gets a link name for jubayer.bond/books/<name>: English letters, numbers, dashes; unique.
+  function assignSlugs(list) {
+    var usedSlug = {};
+    list.forEach(function (b, i) {
+      var s = slug(b.slug || "");
+      if (!b.slug || s === "post") { var t = slug(b.title || ""); s = t !== "post" && t.length >= 3 ? t : slug(b.id || "book-" + (i + 1)); }
+      var base = s, n = 2;
+      while (usedSlug[s]) s = base + "-" + (n++);
+      usedSlug[s] = 1; b.slug = s;
+    });
+  }
   function finalize() {
+    assignSlugs(D.books);
     var used = {};
     D.posts.forEach(function (p) {
       if (!p.id || /^post-/.test(p.id)) p.id = slug(p.title);
@@ -145,9 +162,53 @@
     }).then(function (j) {
       sha = j.content.sha; dirty = false; refresh();
       toast("Saved ✓ The live site updates in about a minute.", "ok");
+      syncBookPages().then(function (n) { if (n) toast("Saved ✓ Book share links updated (" + n + ").", "ok"); })
+        .catch(function (e) { toast("Saved, but the book share previews couldn't be updated: " + e.message, "err"); });
     }).catch(function (e) { toast(e.message, "err"); })
       .then(function () { btn.textContent = "Save to GitHub"; refresh(); });
   }
+  /* ---------- a small preview page per book: books/<link-name>/index.html ----------
+     Facebook, Messenger and WhatsApp read these to show the book's cover and title,
+     then the page sends the visitor to the book on the main site. */
+  function escAttr(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function bookPageHtml(b) {
+    var o = siteOrigin(), url = o + "/books/" + b.slug;
+    var img = !b.image ? "" : /^https?:/.test(b.image) ? b.image : o + "/" + String(b.image).replace(/^\.?\//, "");
+    var price = b.forSale && Number(b.price) > 0 ? "৳" + b.price + " · " : "";
+    var desc = (price + String(b.blurb || "").replace(/\s+/g, " ").trim()).slice(0, 190);
+    if (desc.length >= 190) desc = desc.replace(/\s+\S*$/, "") + "…";
+    return "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\" />\n<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\" />\n" +
+      "<!-- Made by the admin panel when you press Save. It shows this book's preview when the link is shared,\n     then opens the book on the main site. Edit the book in admin.html, not here. -->\n" +
+      "<title>" + escAttr(b.title) + " — Books by Jubayer</title>\n" +
+      "<meta name=\"description\" content=\"" + escAttr(desc) + "\" />\n" +
+      "<link rel=\"canonical\" href=\"" + escAttr(url) + "\" />\n" +
+      "<meta property=\"og:type\" content=\"book\" />\n<meta property=\"og:url\" content=\"" + escAttr(url) + "\" />\n" +
+      "<meta property=\"og:title\" content=\"📚 " + escAttr(b.title) + "\" />\n<meta property=\"og:description\" content=\"" + escAttr(desc) + "\" />\n" +
+      (img ? "<meta property=\"og:image\" content=\"" + escAttr(img) + "\" />\n<meta name=\"twitter:card\" content=\"summary_large_image\" />\n" : "") +
+      "<link rel=\"icon\" href=\"/favicon.svg\" type=\"image/svg+xml\" />\n" +
+      "<script>location.replace(\"/\" + location.search + (/^#(buy|reviews)\\//.test(location.hash) ? location.hash : \"#book/" + encodeURIComponent(b.slug) + "\"));</script>\n" +
+      "<style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#05060f;color:#e8eaf3;font-family:system-ui,sans-serif;text-align:center}a{color:#22d3ee}</style>\n" +
+      "</head>\n<body><p>📚 Opening <a href=\"/#book/" + escAttr(encodeURIComponent(b.slug)) + "\">" + escAttr(b.title) + "</a>…</p></body>\n</html>\n";
+  }
+  function putIfChanged(path, text, message) {
+    var q = "/contents/" + path + "?ref=" + encodeURIComponent(cfg.branch);
+    return api(q).then(function (r) { return r.json(); }, function (e) { if (e.status === 404) return null; throw e; })
+      .then(function (j) {
+        if (j && unb64(j.content) === text) return false;
+        var body = { message: message, content: b64(text), branch: cfg.branch };
+        if (j && j.sha) body.sha = j.sha;
+        return api("/contents/" + path, { method: "PUT", body: JSON.stringify(body) }).then(function () { return true; });
+      });
+  }
+  function syncBookPages() {
+    var list = D.books.filter(function (b) { return b.slug; });
+    return list.reduce(function (p, b) {
+      return p.then(function (n) {
+        return putIfChanged("books/" + b.slug + "/index.html", bookPageHtml(b), "Update share page for " + (b.title || b.slug)).then(function (ch) { return n + (ch ? 1 : 0); });
+      });
+    }, Promise.resolve(0));
+  }
+
   function download() {
     var blob = new Blob([build()], { type: "text/javascript" });
     var a = h("a", { href: URL.createObjectURL(blob), download: "content.js" });
@@ -844,8 +905,20 @@
       }))
     ]);
   }
+  function siteOrigin() { return (location.origin && /^https?:/.test(location.origin) && !/localhost|127\.0\.0\.1/.test(location.origin)) ? location.origin : "https://jubayer.bond"; }
   function panelBooks() {
+    assignSlugs(D.books);
+    var links = h("div", { class: "sharelinks" }, D.books.map(function (b) {
+      var url = siteOrigin() + "/books/" + b.slug;
+      return h("div", { class: "slrow" }, [
+        h("span", { class: "sl-t" }, b.title || "Untitled"),
+        h("a", { class: "sl-u mono", href: url, target: "_blank", rel: "noopener" }, url.replace(/^https?:\/\//, "")),
+        h("button", { class: "mini", type: "button", onclick: function (e) { var t = e.currentTarget; if (navigator.clipboard) navigator.clipboard.writeText(url); t.textContent = "✓ Copied"; setTimeout(function () { t.textContent = "Copy"; }, 1300); } }, "Copy")
+      ]);
+    }));
     return head("Books", "Add your books with cover images.").concat([
+      card("🔗 Share links (each book has its own page)", h("div", null, [links,
+        h("p", { class: "hint", style: "margin:10px 0 0" }, "Saving also makes a preview for each link, so Facebook, Messenger and WhatsApp show that book's cover and title. Change a link name below under “Share link name”.")])),
       card(null, listEditor(D.books, [
         { k: "title", t: "text", l: "Title" }, { k: "year", t: "text", l: "Year / status" },
         { k: "blurb", t: "textarea", l: "Description", wide: true },
@@ -856,6 +929,7 @@
         { k: "price", t: "text", l: "Price (৳)", ph: "e.g. 350", when: function (b) { return !!b.forSale; } },
         { k: "oldPrice", t: "text", l: "Old price (optional, shown crossed out)", ph: "e.g. 450", when: function (b) { return !!b.forSale; } },
         { k: "soldOut", t: "bool", l: "⛔ Mark as SOLD OUT (only tick this when you have no copies left)", wide: true, when: function (b) { return !!b.forSale; } },
+        { k: "slug", t: "text", l: "Share link name", ph: "e.g. tumi-ami", help: "The book's own link: jubayer.bond/books/<this name>. English letters, numbers and dashes. Safe to change any time." },
         { k: "id", t: "text", l: "Book ID", help: "Used to link orders and reviews to this book. Don't change it after people start ordering." }
       ], { title: function (b) { return (b.forSale ? (b.soldOut ? "⛔ SOLD OUT · " : "🛒 ") : "") + (b.title || "Untitled book") + (b.forSale && b.price ? "  ·  ৳" + b.price : ""); },
            blank: function () { return { id: "book-" + Date.now().toString(36), title: "New book", year: today().slice(0, 4), blurb: "", tags: [], link: "", linkText: "Read more", image: "", forSale: false, price: "", oldPrice: "", soldOut: false }; }, add: "+ Add book", addFirst: true }))

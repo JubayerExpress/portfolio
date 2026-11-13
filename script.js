@@ -480,6 +480,7 @@
     if (ringRun) requestAnimationFrame(ringLoop);
   }
   addEventListener("pointermove", function (e) {
+    if (e.pointerType && e.pointerType !== "mouse") return;
     glow.style.transform = "translate3d(" + e.clientX + "px," + e.clientY + "px,0) translate(-50%,-50%)";
     tx = e.clientX; ty = e.clientY;
     if (fine && !ringOn) { ringOn = true; ring.classList.add("on"); }
@@ -491,7 +492,7 @@
 
   var tiltEv = null, tiltQueued = false;
   document.addEventListener("pointermove", function (e) {
-    if (reduce) return;
+    if (reduce || (e.pointerType && e.pointerType !== "mouse")) return;   // no tilting while a finger scrolls
     tiltEv = e;
     if (!tiltQueued) { tiltQueued = true; requestAnimationFrame(function () { tiltQueued = false; tilt(tiltEv); }); }
   }, { passive: true });
@@ -521,7 +522,7 @@
 
   var art = $("heroArt"), stickers = art.querySelectorAll(".sticker");
   $("home").addEventListener("pointermove", function (e) {
-    if (reduce) return;
+    if (reduce || (e.pointerType && e.pointerType !== "mouse")) return;
     var cx = (e.clientX / innerWidth - 0.5), cy = (e.clientY / innerHeight - 0.5);
     stickers.forEach(function (s) {
       var d = +s.dataset.depth;

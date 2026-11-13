@@ -526,3 +526,91 @@ html.has-ann{scroll-padding-top:106px}
 /* ================= Smoothness ================= */
 /* animations in sections you can't see are paused (script.js marks them "is-off") */
 .is-off,.is-off *,.is-off *::before,.is-off *::after{animation-play-state:paused!important}
+
+/* ================= Book cards: footer with View book + Share ================= */
+.bk-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto;padding-top:12px;border-top:1px dashed var(--line)}
+.bk-view{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:.92rem;color:var(--text);text-decoration:none}
+.bk-view span{transition:transform .25s}.bk-view:hover span{transform:translateX(4px)}
+.bk-view:hover{color:var(--b)}
+.bk-share{width:38px;height:38px;flex:none;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line);background:var(--card);color:var(--text);cursor:pointer;transition:.2s}
+.bk-share svg{width:17px;height:17px}
+.bk-share:hover{border-color:var(--c);color:var(--c);box-shadow:0 0 16px -4px var(--c)}
+.to-page{cursor:pointer}
+h3.to-page:hover{color:var(--b)}
+
+/* ================= Share menu ================= */
+.sharepop{position:fixed;z-index:220;min-width:230px;padding:8px;border-radius:16px;background:var(--bg2);border:1px solid var(--line);box-shadow:0 24px 60px -18px rgba(0,0,0,.75);display:grid;gap:2px;animation:smi .2s ease}
+.sharepop[hidden]{display:none}
+.sharepop .sp-url{padding:8px 10px 10px;margin-bottom:4px;border-bottom:1px solid var(--line);font-size:.78rem;color:var(--muted);font-family:"Space Mono",monospace;word-break:break-all}
+.sharepop button,.sharepop a{display:flex;align-items:center;gap:8px;width:100%;padding:10px 12px;border-radius:10px;border:0;background:none;color:var(--text);font:inherit;font-size:.92rem;text-align:left;text-decoration:none;cursor:pointer}
+.sharepop button:hover,.sharepop a:hover,.sharepop button:focus-visible,.sharepop a:focus-visible{background:var(--card);outline:none}
+.sharepop small{color:var(--muted);font-size:.75rem}
+
+/* ================= Book page ================= */
+.bp{position:fixed;inset:0;z-index:150;display:flex;flex-direction:column;
+  background:radial-gradient(70% 50% at 70% 0%,color-mix(in srgb,var(--a) 18%,transparent),transparent 70%),radial-gradient(50% 40% at 0% 100%,color-mix(in srgb,var(--c) 12%,transparent),transparent 70%),var(--bg);
+  animation:bpin .35s cubic-bezier(.2,.8,.2,1)}
+.bp[hidden]{display:none}
+@keyframes bpin{from{opacity:0;transform:translateY(16px)}}
+.bp-bar{flex:none;display:flex;align-items:center;gap:12px;padding:12px max(16px,4vw);border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 85%,transparent)}
+.bp-back{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--text);font:inherit;font-weight:600;font-size:.9rem;cursor:pointer}
+.bp-back:hover{border-color:var(--b)}
+.bp-crumb{flex:1;min-width:0;color:var(--muted);font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bp-bar-r{display:flex;gap:8px}
+.bp-ic{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line);background:var(--card);color:var(--text);cursor:pointer;font-size:.95rem}
+.bp-ic svg{width:18px;height:18px}
+.bp-ic:hover{border-color:var(--c);color:var(--c)}
+.bp-scroll{flex:1;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.bp-in{width:min(1100px,92%);margin:0 auto;padding:34px 0 60px}
+.bp-hero{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:clamp(24px,4vw,56px);align-items:center}
+.bp-stage{height:clamp(320px,46vw,470px);border:1px solid var(--line);border-radius:24px}
+.bp-stage .bk{height:72%;margin-bottom:22px}
+.bp-stage:hover .bk{transform:rotateY(-6deg) rotateX(2deg) translateY(-8px)}
+.bp-stage::after{width:56%}
+.bp-info{display:flex;flex-direction:column;align-items:flex-start;gap:14px}
+.bp-info h1{font-family:"Space Grotesk",sans-serif;font-size:clamp(1.8rem,4vw,2.9rem);line-height:1.12;letter-spacing:-.01em}
+.bp-rating{display:inline-flex;align-items:center;gap:10px;padding:0;border:0;background:none;color:var(--muted);font:inherit;font-size:.95rem;cursor:pointer}
+.bp-rating .rs{font-size:1.1rem}.bp-rating:hover span:last-child{color:var(--text);text-decoration:underline}
+.bp-price{display:flex;align-items:baseline;gap:10px}
+.bp-price b{font-family:"Space Grotesk",sans-serif;font-size:2.3rem;line-height:1;background:linear-gradient(120deg,#f7dc96,#e8b04f);-webkit-background-clip:text;background-clip:text;color:transparent}
+[data-theme="light"] .bp-price b{background:linear-gradient(120deg,#b7791f,#8a5a12);-webkit-background-clip:text;background-clip:text}
+.bp-price s{color:var(--muted)}
+.bp-price em{font-style:normal;font-weight:700;font-size:.8rem;padding:3px 9px;border-radius:999px;background:var(--lime);color:#10130a}
+.bp-actions{display:flex;flex-wrap:wrap;gap:10px}
+.bp-actions .btn{display:inline-flex;align-items:center;gap:8px}
+.bp-actions .btn svg{width:16px;height:16px}
+.bp-buy{font-size:1.02rem;padding:14px 26px}
+.bp-perks{list-style:none;display:flex;flex-wrap:wrap;gap:8px}
+.bp-perks li{padding:7px 13px;border-radius:999px;border:1px solid var(--line);background:var(--card);font-size:.84rem;color:var(--muted)}
+.bp-sec{margin-top:46px}
+.bp-sec h2{font-family:"Space Grotesk",sans-serif;font-size:1.35rem;margin-bottom:14px}
+.bp-sec-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.bp-sec-head h2{margin:0}
+.bp-about{white-space:pre-line;line-height:1.75;color:var(--muted);font-size:1.02rem;max-width:72ch}
+.bp-revs{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.bp-revs article{padding:16px;border-radius:16px;background:var(--card);border:1px solid var(--line)}
+.bp-revs p{margin-top:6px;line-height:1.55;white-space:pre-line;color:var(--muted)}
+.bp-none{color:var(--muted)}
+.bp-all{margin-top:12px;border:0;background:none;color:var(--b);font:inherit;font-weight:600;cursor:pointer}
+/* rolling "Explore more" strip */
+.reel{overflow:hidden;margin:0 calc(-1 * max(4vw,16px));padding:10px 0 6px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.reel-track{display:flex;width:max-content;animation:reel var(--reel-dur,30s) linear infinite}
+.reel:hover .reel-track,.reel.hold .reel-track,.reel:focus-within .reel-track{animation-play-state:paused}
+.reel.still{overflow-x:auto}.reel.still .reel-track{animation:none}
+@keyframes reel{to{transform:translateX(-50%)}}
+.reel-run{display:flex;gap:26px;padding-right:26px}
+.reel-item{flex:none;width:138px;display:flex;flex-direction:column;align-items:center;gap:8px;text-decoration:none;color:var(--text);perspective:700px}
+.reel-book{height:170px;margin:0}
+.reel-book .cover{font-size:.75rem}
+.reel-item:hover .reel-book{transform:rotateY(-4deg) translateY(-6px) scale(1.04)}
+.reel-t{font-size:.84rem;font-weight:600;text-align:center;line-height:1.3;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.reel-p{font-size:.8rem;font-weight:700;color:#e8b04f}
+@media (max-width:820px){
+  .bp-hero{grid-template-columns:1fr}
+  .bp-stage{height:330px}
+  .bp-in{padding-top:20px}
+  .bp-crumb{display:none}
+  .bp-back span{display:none}
+}
+@media (max-width:520px){.bp-back span{display:inline}.reel-item{width:116px}.reel-book{height:142px}}
+@media (prefers-reduced-motion:reduce){.bp{animation:none}}

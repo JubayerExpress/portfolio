@@ -77,7 +77,7 @@
         (off ? '<span class="cover-off">−' + off + "%</span>" : "") +
         (soldOut(b) ? '<span class="cover-buy sold-tag">Sold out</span>'
                    : '<button class="cover-buy" type="button" data-buy="' + i + '" aria-label="Buy ' + esc(b.title) + '">🛒 Buy · ' + money(b.price) + "</button>"));
-      if (!soldOut(b)) { cov.classList.add("can-buy"); cov.setAttribute("data-buy", i); }
+      // (clicking the rest of the cover opens the book's own page — see bookpage.js)
     }
     var after = el.querySelector(".chips");
     if (after) after.parentNode.insertBefore(box, after.nextSibling); else (el.querySelector(".bk-body") || el).appendChild(box);
@@ -144,6 +144,7 @@
     }).catch(done);
     function done() {
       revLoaded = true; paintRatings();
+      revListeners.forEach(function (fn) { try { fn(); } catch (e) {} });
       // If the reviews popup was opened while loading and nothing is typed yet, show the real list.
       var f = $("revForm");
       if (curRev != null && !modal.hidden && body.querySelector(".rv-list .none") && f && !f.elements.name.value && !f.elements.text.value) openReviews(curRev);
@@ -168,7 +169,8 @@
   function close() {
     if (modal.hidden) return;
     modal.hidden = true; body.innerHTML = ""; curRev = null;
-    if ($("reader") && $("reader").hidden) document.body.classList.remove("lock");
+    var bp = $("bookPage");
+    if ($("reader") && $("reader").hidden && !(bp && !bp.hidden)) document.body.classList.remove("lock");
     if (/^#(buy|reviews)\//.test(location.hash)) history.replaceState(null, "", "#books");
     if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
   }
@@ -381,6 +383,23 @@
         .catch(function (x) { go.disabled = false; go.textContent = "Send review"; fail(x.message); });
     });
   }
+
+  /* ---------- what the book pages (bookpage.js) may use ---------- */
+  var revListeners = [];
+  window.SHOP = {
+    onSale: onSale, soldOut: soldOut, money: money,
+    openBuy: openBuy, openReviews: openReviews,
+    reviews: function (b, i) { return REV[bid(b, i)] || []; },
+    loaded: function () { return revLoaded; },
+    onReviews: function (fn) { revListeners.push(fn); },
+    perks: function () {
+      var out = [], free = AREAS.filter(function (a) { return !(Number(a.fee) > 0); })[0];
+      if (free) out.push("🚚 Free delivery · " + free.label);
+      if (String(SH.bkashNumber || "").trim()) out.push("📲 bKash" + (SH.cod !== false ? " or cash on delivery" : ""));
+      else if (SH.cod !== false) out.push("💵 Cash on delivery");
+      return out;
+    }
+  };
 
   /* ---------- links like #buy/<book-id> or #reviews/<book-id> (for announcements) ---------- */
   function route() {
