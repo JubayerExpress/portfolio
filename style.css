@@ -662,3 +662,15 @@ a.bpn-i:hover span{text-decoration:underline;text-underline-offset:3px}
 .bpo-foot{font-size:.75rem;color:var(--muted);text-align:center}
 @media (max-width:520px){.bpo-txt{display:none}.bpo-btn{padding:12px 14px}}
 @media (prefers-reduced-motion:reduce){.bpo-btn,.bpo-btn::after,.bpo-ico{animation:none}}
+/* offers shown right on the book page, under the buttons */
+.bp-inline-offers{width:100%;max-width:460px;display:grid;gap:10px;animation:smi .4s ease}
+.bp-inline-offers[hidden]{display:none}
+.bpi-head{font-weight:700;font-size:.95rem}
+.bp-inline-offers .bpo-cp{position:relative;box-shadow:0 14px 34px -20px rgba(232,176,79,.7)}
+.bp-inline-offers .bpo-cp::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.14) 45%,transparent 60%);transform:translateX(-100%);animation:cpshine 4.5s ease-in-out infinite}
+@keyframes cpshine{55%,100%{transform:translateX(100%)}}
+/* the floating button hides while the tickets above are on screen */
+.bp-offers.off{opacity:0;transform:translateY(16px);pointer-events:none}
+.bp-offers.off>*{pointer-events:none}
+.bp-offers{transition:opacity .3s,transform .3s}
+@media (prefers-reduced-motion:reduce){.bp-inline-offers .bpo-cp::after{animation:none}}

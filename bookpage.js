@@ -155,6 +155,7 @@
           (extLink ? '<a class="btn ghost" href="' + esc(safe(b.link)) + '"' + (/^https?:/.test(b.link) ? ' target="_blank" rel="noopener"' : "") + ">" + esc(b.linkText || "Read more") + " ↗</a>" : "") +
         "</div>" +
         (sale && sh.perks().length ? '<ul class="bp-perks">' + sh.perks().map(function (p) { return "<li>" + esc(p) + "</li>"; }).join("") + "</ul>" : "") +
+        '<div class="bp-inline-offers" id="bpInline" hidden></div>' +
         (b.tags && b.tags.length ? '<div class="chips">' + b.tags.map(function (t) { return '<span class="chip">' + esc(t) + "</span>"; }).join("") + "</div>" : "") +
       "</div></section>";
     if (String(b.blurb || "").trim()) html += '<section class="bp-sec"><h2>About this book</h2><div class="bp-about">' + esc(b.blurb) + "</div></section>";
@@ -194,12 +195,28 @@
     if (!sh || !sh.coupons || !sh.onSale(b) || sh.soldOut(b)) return [];
     return sh.coupons(b, i);
   }
+  var inlineIO = null;
   function paintOffers(i) {
-    var list = liveCoupons(i), box = $("bpOffers"), panel = $("bpoPanel"), sh = SHOP();
+    var list = liveCoupons(i), box = $("bpOffers"), panel = $("bpoPanel"), sh = SHOP(), inl = $("bpInline");
     box.hidden = !list.length;
     panel.hidden = true; $("bpoBtn").setAttribute("aria-expanded", "false");
+    if (inl) inl.hidden = !list.length;
     if (!list.length) return;
     $("bpoN").textContent = list.length;
+    var tickets = list.map(function (c) {
+        var t = sh.terms(c);
+        return '<div class="bpo-cp"><div class="bpo-l"><span>' + esc(sh.offer(c)) + "</span>" + (c.note ? "<small>" + esc(c.note) + "</small>" : "") + "</div>" +
+          '<div class="bpo-r"><b class="mono">' + esc(c.code) + "</b>" + (t ? "<em>" + esc(t) + "</em>" : "") +
+          '<button type="button" class="bpo-use" data-code="' + esc(c.code) + '">Use this coupon →</button></div></div>';
+      }).join("");
+    // Always on the page for everyone, right under the price and buttons
+    if (inl) inl.innerHTML = '<p class="bpi-head">🎉 Available offers</p>' + tickets;
+    // The floating button only shows once those tickets have scrolled out of view
+    if (inlineIO) inlineIO.disconnect();
+    if (inl && "IntersectionObserver" in window) {
+      inlineIO = new IntersectionObserver(function (es) { box.classList.toggle("off", es[0].isIntersecting); }, { root: scroller, threshold: 0.2 });
+      inlineIO.observe(inl);
+    }
     panel.innerHTML = '<div class="bpo-head"><b>🎉 Available offers</b><button type="button" class="bpo-x" aria-label="Close">✕</button></div>' +
       list.map(function (c) {
         var t = sh.terms(c);
