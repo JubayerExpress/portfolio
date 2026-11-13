@@ -335,8 +335,7 @@
       emit(lx + (rnd() - 0.5) * 6, ly + (rnd() - 0.5) * 6, { vx: (rnd() - 0.5) * 0.7, vy: (rnd() - 0.5) * 0.7 + 0.2, size: 1.2 + rnd() * 1.6, decay: 0.035 });
     }, { passive: true });
 
-    addEventListener("pointerdown", function (e) {
-      if (e.pointerType !== "mouse") return;   // no sparkle burst on touch screens
+    if (false) addEventListener("pointerdown", function (e) {   // click sparkle burst: turned off
       ring(e.clientX, e.clientY, "#22d3ee");
       for (var i = 0; i < 12; i++) {
         var a = rnd() * 6.283, sp = 1.2 + rnd() * 3;

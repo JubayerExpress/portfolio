@@ -35,12 +35,25 @@
   pop.className = "sharepop"; pop.hidden = true; pop.setAttribute("role", "menu");
   document.body.appendChild(pop);
   function closePop() { pop.hidden = true; }
+  var popOpenedAt = 0;
+  var shareIdx = 0, shareBtn = null;
   function share(i, btn) {
+    popOpenedAt = Date.now(); shareIdx = i; shareBtn = btn;
     var b = books[i], url = shareUrl(b, i), sh = SHOP();
     var text = "📚 " + b.title + (sh && sh.onSale(b) ? " — " + sh.money(b.price) : "") + " by Jubayer";
     var coarse = window.matchMedia("(pointer:coarse)").matches;
-    if (navigator.share && coarse) { navigator.share({ title: b.title, text: text, url: url }).catch(function () {}); return; }
+    if (navigator.share && coarse) {
+      // phone share sheet; if the phone can't share, show our own menu instead
+      navigator.share({ title: b.title, text: text, url: url }).catch(function (err) { if (!err || err.name !== "AbortError") showMenu(); });
+      return;
+    }
+    showMenu();
+  }
+  function showMenu() {
+    var i = shareIdx, b = books[i], url = shareUrl(b, i), sh = SHOP(), btn = shareBtn;
+    var text = "📚 " + b.title + (sh && sh.onSale(b) ? " — " + sh.money(b.price) : "") + " by Jubayer";
     var enc = encodeURIComponent;
+    popOpenedAt = Date.now();
     pop.innerHTML = '<p class="sp-url"><span>' + esc(url.replace(/^https?:\/\//, "")) + "</span></p>" +
       '<button type="button" role="menuitem" data-sp="copy">🔗 Copy link</button>' +
       '<a role="menuitem" target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u=' + enc(url) + '">📘 Facebook</a>' +
@@ -61,7 +74,8 @@
     setTimeout(function () { var f = pop.querySelector("button"); if (f) f.focus({ preventScroll: true }); }, 30);
   }
   document.addEventListener("click", function (e) {
-    if (!pop.hidden && !pop.contains(e.target) && !e.target.closest("[data-share]")) closePop();
+    if (pop.hidden || Date.now() - popOpenedAt < 300) return;   // ignore the click that just opened it
+    if (!pop.contains(e.target)) closePop();
   });
   addEventListener("scroll", closePop, { passive: true });
   addEventListener("keydown", function (e) { if (e.key === "Escape" && !pop.hidden) { closePop(); e.stopImmediatePropagation(); } }, true);
