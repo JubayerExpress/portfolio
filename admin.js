@@ -96,6 +96,10 @@
     var SD = { enabled: true, endpoint: "", currency: "৳", bkashNumber: "", bkashType: "Personal", cod: true, freeNote: "🎓 BRAC University-তে ফ্রি ডেলিভারি!" };
     Object.keys(SD).forEach(function (k) { if (d.shop[k] == null) d.shop[k] = SD[k]; });
     d.shop.delivery = d.shop.delivery || [{ label: "BRAC University (campus)", fee: 0 }, { label: "Inside Dhaka", fee: 60 }, { label: "Outside Dhaka", fee: 120 }];
+    d.leads = d.leads || {};
+    var LD = { books: "Step inside, slow down, and get lost in a world where every book has a story to tell and every page holds a little piece of magic.", research: "Papers, theses and projects.",
+      courses: "Each course lives on its own website. Jump straight in.", blog: "Learning notes, reviews and random thoughts." };
+    Object.keys(LD).forEach(function (k) { if (d.leads[k] == null || d.leads[k] === "") d.leads[k] = LD[k]; });
     d.announce = d.announce || {}; if (d.announce.enabled == null) d.announce.enabled = false; d.announce.items = d.announce.items || [];
     return d;
   }
@@ -819,7 +823,13 @@
         { k: "roles", t: "lines", l: "Rotating titles (one per line)" },
         { k: "ticker", t: "lines", l: "Scrolling banner words (one per line)" }
       ])),
-      card("Social links", listEditor(D.socials, SOCIAL, { title: function (s) { return s.label || "Link"; }, blank: function () { return { label: "New", url: "https://" }; }, add: "+ Add link" }))
+      card("Social links", listEditor(D.socials, SOCIAL, { title: function (s) { return s.label || "Link"; }, blank: function () { return { label: "New", url: "https://" }; }, add: "+ Add link" })),
+      card("Section descriptions", fieldGrid(D.leads, [
+        { k: "books", t: "textarea", l: "Books", wide: true },
+        { k: "research", t: "textarea", l: "Research", wide: true },
+        { k: "courses", t: "textarea", l: "Courses", wide: true },
+        { k: "blog", t: "textarea", l: "Blog", wide: true }
+      ]))
     ]);
   }
   function panelAbout() {

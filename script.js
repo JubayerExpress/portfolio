@@ -175,6 +175,13 @@
   $("coursesGrid").addEventListener("click", toggleFold);
   requestAnimationFrame(foldBlurbs);
 
+  // Section descriptions (Admin → General → Section descriptions). Empty = keep the text in index.html.
+  var LEADS = S.leads || {};
+  ["books", "research", "courses", "blog"].forEach(function (k) {
+    var el = $(k + "Lead"), v = String(LEADS[k] || "").trim();
+    if (el && v) el.textContent = v;
+  });
+
   /* ---------- Education ---------- */
   var E = S.education || {};
   var FB = '<svg class="fb" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.78-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0 0 22 12z"/></svg>';
