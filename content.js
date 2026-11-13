@@ -108,7 +108,7 @@ window.SITE = {
       "forSale": true,
       "price": "400",
       "soldOut": false,
-      "oldPrice": "400",
+      "oldPrice": "450",
       "badge": "New Arrival "
     },
     {
