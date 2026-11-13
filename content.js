@@ -112,19 +112,6 @@ window.SITE = {
       "badge": "New Arrival "
     },
     {
-      "title": "My Journey to Engineering",
-      "year": "Coming soon",
-      "blurb": "Every journey begins with a dream, and every dream is built through determination, curiosity, and perseverance. *My Journey to Engineering* is a personal reflection on the path toward becoming an engineer, exploring the challenges, experiences, lessons, and aspirations that shape the journey. A story of ambition, learning, and the courage to turn dreams into reality.",
-      "tags": [
-        "Autobiography",
-        "Memoir"
-      ],
-      "link": "",
-      "linkText": "Learn More",
-      "image": "assets/uploads/1794508661707-my-journey-to-engineering.jpg",
-      "id": "my-journey-to-engineering"
-    },
-    {
       "title": "অহর্নিশ জাগরণ",
       "year": "Coming soon",
       "blurb": "‘অহর্নিশ জাগরণ’ এক অনুভূতির নাম, এক নিরন্তর জেগে থাকার গল্প। জীবনের গভীর উপলব্ধি, প্রকৃতির নীরব সৌন্দর্য, মানুষের ভাবনা এবং অন্তরের অজস্র প্রশ্নের মেলবন্ধনে রচিত এই বই। কখনো শব্দে, কখনো নীরবতায়, কখনোবা অনুভূতির গভীরে, এ বই পাঠককে নিয়ে যাবে আত্মঅন্বেষণ ও চিন্তার এক ভিন্ন জগতে। এটি কেবল কিছু লেখার সংকলন নয়, বরং প্রতিনিয়ত জেগে ওঠার এক সাহিত্যিক আহ্বান।",
@@ -138,9 +125,22 @@ window.SITE = {
       "image": "assets/uploads/1794509023583-post.jpg",
       "id": "book-2",
       "forSale": true,
-      "price": "400",
+      "price": "350",
       "badge": "Pre Order",
-      "oldPrice": "450"
+      "oldPrice": "400"
+    },
+    {
+      "title": "My Journey to Engineering",
+      "year": "Coming soon",
+      "blurb": "Every journey begins with a dream, and every dream is built through determination, curiosity, and perseverance. *My Journey to Engineering* is a personal reflection on the path toward becoming an engineer, exploring the challenges, experiences, lessons, and aspirations that shape the journey. A story of ambition, learning, and the courage to turn dreams into reality.",
+      "tags": [
+        "Autobiography",
+        "Memoir"
+      ],
+      "link": "",
+      "linkText": "Learn More",
+      "image": "assets/uploads/1794508661707-my-journey-to-engineering.jpg",
+      "id": "my-journey-to-engineering"
     }
   ],
   "research": [
