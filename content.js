@@ -121,7 +121,7 @@ window.SITE = {
         "Bengali Literature"
       ],
       "link": "#buy",
-      "linkText": "Order Now!",
+      "linkText": "Pre Order Now!",
       "image": "assets/uploads/1794509023583-post.jpg",
       "id": "book-2",
       "forSale": true,
