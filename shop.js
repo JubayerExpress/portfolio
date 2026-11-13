@@ -214,7 +214,7 @@
       '<label class="fl wide"><span>Email <small>(optional)</small></span><input name="email" type="email" autocomplete="email" maxlength="120"></label>' +
       "</div></fieldset>" +
       '<fieldset><legend>Payment</legend><div class="opts">' + pays + "</div>" +
-      (hasBk ? '<div class="bk" id="bkBox"><ol>' +
+      (hasBk ? '<div class="bkpay" id="bkBox"><ol>' +
         "<li>Open bKash → <b>Send Money</b></li>" +
         '<li>Number: <b class="mono">' + esc(SH.bkashNumber) + "</b>" + (SH.bkashType ? " <small>(" + esc(SH.bkashType) + ")</small>" : "") + " " + copyBtn(String(SH.bkashNumber).replace(/\s/g, "")) + "</li>" +
         '<li>Amount: <b id="bkAmt" class="mono"></b></li>' +

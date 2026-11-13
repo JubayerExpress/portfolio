@@ -892,8 +892,10 @@
       card(null, listEditor(D.courses, [
         { k: "title", t: "text", l: "Title" }, { k: "platform", t: "text", l: "Platform / website name" }, { k: "level", t: "text", l: "Level" },
         { k: "link", t: "text", l: "Link to the course website" },
-        { k: "description", t: "textarea", l: "Description", wide: true }, { k: "linkText", t: "text", l: "Button text" },
-        { k: "image", t: "image", l: "Course image", wide: true }
+        { k: "description", t: "textarea", l: "Description", wide: true, help: "Long text folds behind “See more”. Use **bold** and lines starting with - for a list." },
+        { k: "linkText", t: "text", l: "Button text" },
+        { k: "badge", t: "text", l: "Ribbon on the card (optional)", ph: "e.g. New, Popular, Free" },
+        { k: "image", t: "image", l: "Course image (square works best)", wide: true }
       ], { title: function (c) { return c.title || "Untitled course"; }, blank: function () { return { title: "New course", platform: "", level: "Beginner", description: "", link: "https://", linkText: "Open course", image: "" }; }, add: "+ Add course", addFirst: true }))
     ]);
   }

@@ -322,9 +322,9 @@ h1{font-family:"Space Grotesk",sans-serif;font-size:clamp(3rem,9vw,6.2rem);line-
 .sm .qty input{width:48px;border:0;box-shadow:none;border-radius:0;padding:0;background:transparent}
 .sm form>.fl{margin-top:14px}
 .hp{position:absolute!important;left:-9999px;width:1px;height:1px;opacity:0}
-.bk{margin-top:10px;padding:14px;border-radius:14px;border:1px solid color-mix(in srgb,#e2136e 45%,transparent);background:color-mix(in srgb,#e2136e 8%,transparent)}
-.bk[hidden]{display:none}
-.bk ol{margin:0 0 12px 18px;display:grid;gap:6px;font-size:.92rem}
+.bkpay{margin-top:10px;padding:14px;border-radius:14px;border:1px solid color-mix(in srgb,#e2136e 45%,transparent);background:color-mix(in srgb,#e2136e 8%,transparent)}
+.bkpay[hidden]{display:none}
+.bkpay ol{margin:0 0 12px 18px;display:grid;gap:6px;font-size:.92rem}
 .mono{font-family:"Space Mono",monospace;letter-spacing:.02em}
 .copy{margin-left:6px;padding:3px 10px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--text);font:inherit;font-size:.75rem;cursor:pointer}
 .sum{margin-top:16px;padding:12px 14px;border-radius:14px;background:var(--card);border:1px solid var(--line);display:grid;gap:6px;font-size:.92rem}
@@ -480,3 +480,43 @@ html.has-ann{scroll-padding-top:106px}
 .perks i{font-style:normal}
 @media (max-width:520px){.bk-stage{height:270px}.bk{height:200px}.perks{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-right:-4%;padding-right:4%}.perks::-webkit-scrollbar{display:none}.perks span{flex:none;font-size:.82rem;padding:8px 13px}}
 @media (prefers-reduced-motion:reduce){.bk{transition:none}}
+
+/* ================= Courses: floating tile on a lit grid ================= */
+.course-card{padding:0;gap:0;overflow:hidden}
+.cs-stage{position:relative;height:260px;display:grid;place-items:center;perspective:900px;overflow:hidden;border-bottom:1px solid var(--line);
+  background:
+    radial-gradient(48% 58% at 50% 42%,color-mix(in srgb,var(--c) 30%,transparent),transparent 72%),
+    radial-gradient(36% 36% at 22% 85%,color-mix(in srgb,var(--a) 22%,transparent),transparent 70%),
+    linear-gradient(color-mix(in srgb,var(--text) 5%,transparent) 1px,transparent 1px) 0 0/26px 26px,
+    linear-gradient(90deg,color-mix(in srgb,var(--text) 5%,transparent) 1px,transparent 1px) 0 0/26px 26px,
+    linear-gradient(180deg,color-mix(in srgb,var(--bg2) 30%,transparent),color-mix(in srgb,var(--bg) 75%,transparent))}
+.cs-stage::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,transparent 55%,color-mix(in srgb,var(--bg) 55%,transparent))}
+.cs-float{position:relative;z-index:1;margin-bottom:18px;animation:csfloat 5.5s ease-in-out infinite}
+.course-card:nth-child(2n) .cs-float{animation-delay:-1.8s}.course-card:nth-child(3n) .cs-float{animation-delay:-3.4s}
+@keyframes csfloat{50%{transform:translateY(-10px)}}
+.cs-tile{position:relative;width:148px;aspect-ratio:1;border-radius:28px;overflow:hidden;display:grid;place-items:center;
+  transform:rotateX(18deg) rotateY(-18deg) rotateZ(3deg);transition:transform .7s cubic-bezier(.2,.8,.2,1),box-shadow .7s;
+  box-shadow:0 0 0 1px rgba(255,255,255,.14) inset,7px 7px 0 -1px color-mix(in srgb,var(--a) 60%,#05060f),13px 13px 0 -2px color-mix(in srgb,var(--a) 35%,#05060f),26px 32px 44px -14px rgba(0,0,0,.75)}
+.cs-tile img{width:100%;height:100%;object-fit:cover;display:block}
+.cs-tile::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.38),rgba(255,255,255,0) 42%,rgba(255,255,255,0) 70%,rgba(255,255,255,.12))}
+.cs-mono{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:2.6rem;color:#fff;text-shadow:0 4px 18px rgba(0,0,0,.35)}
+.course-card:hover .cs-tile{transform:rotateX(0) rotateY(0) rotateZ(0) scale(1.06);box-shadow:0 0 0 1px rgba(255,255,255,.2) inset,0 0 0 0 transparent,0 0 0 0 transparent,0 24px 50px -12px color-mix(in srgb,var(--c) 70%,transparent)}
+.cs-ring{position:absolute;left:50%;bottom:38px;width:190px;height:38px;margin-left:-95px;border-radius:50%;
+  border:1px solid color-mix(in srgb,var(--c) 55%,transparent);box-shadow:0 0 26px -4px var(--c),inset 0 0 18px -6px var(--c);animation:csring 3.2s ease-in-out infinite}
+@keyframes csring{50%{transform:scale(1.08);opacity:.55}}
+.cs-level{position:absolute;z-index:3;top:14px;right:14px;padding:5px 12px;border-radius:999px;font-size:.74rem;font-weight:600;letter-spacing:.04em;
+  color:var(--text);background:color-mix(in srgb,var(--bg) 55%,transparent);border:1px solid var(--line);backdrop-filter:blur(8px);max-width:60%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cs-go{text-decoration:none!important}
+.course-card .cs-go{background:linear-gradient(120deg,var(--c),var(--b),var(--a))}
+/* markdown descriptions that fold */
+.blurb-wrap.md .blurb{display:block;-webkit-line-clamp:unset;line-clamp:none;white-space:normal;max-height:7.2em;overflow:hidden}
+.blurb-wrap.md.clip .blurb{-webkit-mask-image:linear-gradient(#000 55%,transparent);mask-image:linear-gradient(#000 55%,transparent)}
+.blurb-wrap.md.open .blurb{max-height:none;-webkit-mask-image:none;mask-image:none}
+.prose-sm{color:var(--muted);font-size:.95rem;line-height:1.6}
+.prose-sm>*+*{margin-top:.6em}
+.prose-sm strong{color:var(--text)}
+.prose-sm ul,.prose-sm ol{padding-left:1.2em}.prose-sm li+li{margin-top:.2em}
+.prose-sm a{color:var(--b);text-decoration:underline}
+.prose-sm code{font-family:"Space Mono",monospace;font-size:.88em;padding:1px 6px;border-radius:6px;background:var(--card)}
+@media (max-width:520px){.cs-stage{height:236px}.cs-tile{width:128px;border-radius:24px}}
+@media (prefers-reduced-motion:reduce){.cs-float,.cs-ring{animation:none}.cs-tile{transition:none}}

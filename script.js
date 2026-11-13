@@ -123,20 +123,22 @@
 
   // Long book descriptions start folded; "See more" opens them. The button only appears when the text is actually cut off.
   function foldBlurbs() {
-    document.querySelectorAll("#booksGrid .blurb-wrap").forEach(function (w) {
+    document.querySelectorAll("#booksGrid .blurb-wrap, #coursesGrid .blurb-wrap").forEach(function (w) {
       var p = w.querySelector(".blurb"), btn = w.querySelector(".more");
       if (w.classList.contains("open")) return;
       btn.hidden = p.scrollHeight <= p.clientHeight + 2;
+      w.classList.toggle("clip", !btn.hidden);   // fade the last line only when text is really cut off
     });
   }
-  $("booksGrid").addEventListener("click", function (e) {
+  function toggleFold(e) {
     var btn = e.target.closest(".more"); if (!btn) return;
     var w = btn.parentNode, open = !w.classList.contains("open");
     w.classList.toggle("open", open);
     btn.setAttribute("aria-expanded", String(open));
     btn.innerHTML = open ? "See less <span>▴</span>" : "See more <span>▾</span>";
     if (!open) w.closest("article").scrollIntoView({ block: "nearest", behavior: reduce ? "auto" : "smooth" });
-  });
+  }
+  $("booksGrid").addEventListener("click", toggleFold);
   requestAnimationFrame(foldBlurbs);
   addEventListener("load", foldBlurbs);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(foldBlurbs);
@@ -151,13 +153,27 @@
       '<a class="link" ' + linkAttrs(r.link) + ">" + esc(r.linkText || "View") + " →</a></article>";
   }).join("");
 
+  // Courses: the course image floats as a glossy tile over a lit grid; descriptions understand **bold** and - lists.
   $("coursesGrid").innerHTML = (S.courses || []).map(function (c, i) {
-    return '<article class="card reveal" style="--d:' + (i * 0.08) + 's">' +
-      (c.image ? '<div class="cover">' + img(c.image, c.title) + "</div>" : "") +
-      '<span class="meta">' + esc(c.level) + " · " + esc(c.platform) + "</span><h3>" + esc(c.title) + "</h3>" +
-      "<p>" + esc(c.description) + "</p>" +
-      '<a class="link" ' + linkAttrs(c.link) + ">" + esc(c.linkText || "Open") + " <span>↗</span></a></article>";
+    var words = String(c.title || "?").replace(/[^\p{L}\p{N} ]/gu, "").trim().split(/\s+/);
+    var mono = (words[0] || "?").charAt(0) + (words[1] ? words[1].charAt(0) : "");
+    var tile = c.image ? img(c.image, c.title) : '<span class="cs-mono">' + esc(mono.toUpperCase()) + "</span>";
+    var go = c.link && c.link !== "#";
+    return '<article class="card course-card reveal" style="--d:' + (i * 0.08) + 's">' +
+      '<div class="cs-stage">' + (c.badge ? '<span class="bk-ribbon">' + esc(c.badge) + "</span>" : "") +
+        (c.level ? '<span class="cs-level">' + esc(c.level) + "</span>" : "") +
+        '<span class="cs-ring" aria-hidden="true"></span>' +
+        '<div class="cs-float"><div class="cs-tile"' + (c.image ? "" : ' style="background:' + gradients[i % gradients.length] + '"') + ">" + tile + "</div></div>" +
+        (go ? '<a class="cover-buy cs-go" ' + linkAttrs(c.link) + ">" + esc(c.linkText || "Open") + " ↗</a>" : "") +
+      '</div><div class="bk-body">' +
+      (c.platform ? '<span class="meta">' + esc(c.platform) + "</span>" : "") + "<h3>" + esc(c.title) + "</h3>" +
+      '<div class="blurb-wrap md"><div class="blurb prose-sm">' + MD.render(c.description || "") + '</div><button class="more" type="button" hidden aria-expanded="false">See more <span>▾</span></button></div>' +
+      (go ? '<a class="link" ' + linkAttrs(c.link) + ">" + esc(c.linkText || "Open") + " <span>↗</span></a>" : "") +
+      "</div></article>";
   }).join("");
+
+  $("coursesGrid").addEventListener("click", toggleFold);
+  requestAnimationFrame(foldBlurbs);
 
   /* ---------- Education ---------- */
   var E = S.education || {};
