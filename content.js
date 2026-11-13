@@ -108,7 +108,8 @@ window.SITE = {
       "forSale": true,
       "price": "400",
       "soldOut": false,
-      "oldPrice": "400"
+      "oldPrice": "400",
+      "badge": "New Arrival "
     },
     {
       "title": "My Journey to Engineering",
