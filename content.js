@@ -136,7 +136,11 @@ window.SITE = {
       "link": "#",
       "linkText": "Learn More",
       "image": "assets/uploads/1794509023583-post.jpg",
-      "id": "book-2"
+      "id": "book-2",
+      "forSale": true,
+      "price": "400",
+      "badge": "Pre Order",
+      "oldPrice": "450"
     }
   ],
   "research": [
