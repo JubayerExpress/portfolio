@@ -116,7 +116,6 @@ window.SITE = {
       "year": "Coming soon",
       "blurb": "‘অহর্নিশ জাগরণ’ এক অনুভূতির নাম, এক নিরন্তর জেগে থাকার গল্প। জীবনের গভীর উপলব্ধি, প্রকৃতির নীরব সৌন্দর্য, মানুষের ভাবনা এবং অন্তরের অজস্র প্রশ্নের মেলবন্ধনে রচিত এই বই। কখনো শব্দে, কখনো নীরবতায়, কখনোবা অনুভূতির গভীরে, এ বই পাঠককে নিয়ে যাবে আত্মঅন্বেষণ ও চিন্তার এক ভিন্ন জগতে। এটি কেবল কিছু লেখার সংকলন নয়, বরং প্রতিনিয়ত জেগে ওঠার এক সাহিত্যিক আহ্বান।",
       "tags": [
-        "কবিতা",
         "Poetry",
         "Bengali Literature"
       ],
@@ -376,5 +375,11 @@ window.SITE = {
         "isNew": false
       }
     ]
+  },
+  "leads": {
+    "books": "Step inside, slow down, and get lost in a world where every book has a story to tell and every page holds a little piece of magic.",
+    "research": "Papers, theses and projects.",
+    "courses": "Each course lives on its own website. Jump straight in.",
+    "blog": "Learning notes, reviews and random thoughts."
   }
 };
