@@ -133,8 +133,8 @@ window.SITE = {
         "Poetry",
         "Bengali Literature"
       ],
-      "link": "#",
-      "linkText": "Learn More",
+      "link": "#buy",
+      "linkText": "Order Now!",
       "image": "assets/uploads/1794509023583-post.jpg",
       "id": "book-2",
       "forSale": true,
