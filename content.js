@@ -106,9 +106,9 @@ window.SITE = {
       "image": "assets/uploads/1794509133404-title.jpg",
       "id": "book-1",
       "forSale": true,
-      "price": "350",
+      "price": "400",
       "soldOut": false,
-      "oldPrice": "400",
+      "oldPrice": "450",
       "badge": "New Arrival "
     },
     {
