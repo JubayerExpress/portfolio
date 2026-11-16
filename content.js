@@ -373,7 +373,7 @@ window.SITE = {
         "isNew": false
       },
       {
-        "text": "🎟️ কুপন কোড START15 ব্যবহার করলে 15% ছাড়!",
+        "text": "🎟️ কুপন কোড FIRST99 ব্যবহার করলে 12.5% ছাড়!",
         "link": "#books",
         "isNew": false
       }
