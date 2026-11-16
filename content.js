@@ -109,7 +109,8 @@ window.SITE = {
       "price": "400",
       "soldOut": false,
       "oldPrice": "450",
-      "badge": "New Arrival "
+      "badge": "New Arrival ",
+      "slug": "book-1"
     },
     {
       "title": "অহর্নিশ জাগরণ",
@@ -126,7 +127,8 @@ window.SITE = {
       "forSale": true,
       "price": "350",
       "badge": "Pre Order",
-      "oldPrice": "400"
+      "oldPrice": "400",
+      "slug": "book-2"
     },
     {
       "title": "My Journey to Engineering",
@@ -139,7 +141,8 @@ window.SITE = {
       "link": "",
       "linkText": "Learn More",
       "image": "assets/uploads/1794508661707-my-journey-to-engineering.jpg",
-      "id": "my-journey-to-engineering"
+      "id": "my-journey-to-engineering",
+      "slug": "my-journey-to-engineering"
     }
   ],
   "research": [
@@ -370,7 +373,7 @@ window.SITE = {
         "isNew": false
       },
       {
-        "text": "🎟️ কুপন কোড START10 ব্যবহার করলে ১০% ছাড়!",
+        "text": "🎟️ কুপন কোড START15 ব্যবহার করলে 15% ছাড়!",
         "link": "#books",
         "isNew": false
       }
