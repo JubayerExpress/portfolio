@@ -472,12 +472,12 @@
   /* ---------- Cursor glow, ring, card tilt, magnetic buttons, sticker parallax ---------- */
   var glow = $("glow"), ring = $("ring"), rx = 0, ry = 0, tx = 0, ty = 0;
   var fine = window.matchMedia("(pointer:fine)").matches;
+  // The ring sits right on the cursor: it moves to the newest mouse position once per screen frame,
+  // with no easing, so it never trails behind.
   var ringOn = false, ringBig = false, ringRun = false;
   function ringLoop() {
-    rx += (tx - rx) * 0.18; ry += (ty - ry) * 0.18;
-    if (Math.abs(tx - rx) < 0.3 && Math.abs(ty - ry) < 0.3) { rx = tx; ry = ty; ringRun = false; }
-    ring.style.transform = "translate3d(" + rx.toFixed(1) + "px," + ry.toFixed(1) + "px,0) translate(-50%,-50%)";
-    if (ringRun) requestAnimationFrame(ringLoop);
+    ringRun = false; rx = tx; ry = ty;
+    ring.style.transform = "translate3d(" + rx + "px," + ry + "px,0) translate(-50%,-50%)";
   }
   addEventListener("pointermove", function (e) {
     if (e.pointerType && e.pointerType !== "mouse") return;
@@ -486,8 +486,7 @@
     if (fine && !ringOn) { ringOn = true; ring.classList.add("on"); }
     var big = !!(e.target.closest && e.target.closest("a,button,.card,.pill"));
     if (big !== ringBig) { ringBig = big; ring.classList.toggle("big", big); }
-    if (fine && !reduce && !ringRun) { ringRun = true; requestAnimationFrame(ringLoop); }
-    else if (reduce) { rx = tx; ry = ty; ring.style.transform = "translate3d(" + tx + "px," + ty + "px,0) translate(-50%,-50%)"; }
+    if (fine && !ringRun) { ringRun = true; requestAnimationFrame(ringLoop); }
   }, { passive: true });
 
   var tiltEv = null, tiltQueued = false;
