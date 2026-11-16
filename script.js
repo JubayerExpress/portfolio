@@ -440,8 +440,8 @@
     scrollQueued = true;
     requestAnimationFrame(function () {
       scrollQueued = false;
-      if (navDirty) measureNav();
       var y = window.scrollY;
+      if (navDirty && y > 2) measureNav();   // at the very top nothing needs fresh numbers yet
       nav.classList.toggle("scrolled", y > 30);
       prog.style.transform = "translateX(" + ((docH > 0 ? Math.min(1, y / docH) : 0) * 100 - 100).toFixed(2) + "%)";
       toTop.classList.toggle("show", y > 600);

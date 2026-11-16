@@ -12,7 +12,8 @@
   /* ---------------- Starfield canvas ---------------- */
   var cv = $("space"), ctx = cv.getContext("2d");
   var W = 0, H = 0, stars = [], shooters = [];
-  var warp = reduce ? 0 : 1;            // 1 = hyperspace, decays to 0 on load
+  var warp = 0;                         // 1 = hyperspace, decays to 0 (the intro starts once the page is built)
+  var started = false;                  // nothing is drawn until the page has finished loading
   var scrollY = window.scrollY, vel = 0, lastY = scrollY;
   var mx = 0, my = 0, tmx = 0, tmy = 0; // smoothed mouse offset (-.5..+.5)
   var dust = [], sprites = [], pmx = -9999, pmy = -9999, sx = [], sy = [];
@@ -69,7 +70,18 @@
   var nextShoot = 6000;
 
   var t0 = performance.now(), last = t0, lastMove = 0, lastSY = scrollY;
+  // Start the intro after the page (text, images, fonts) is ready, so the warp doesn't fight the
+  // browser for the first second; at the latest after 2.5 s, even if a big image is still loading.
+  function startIntro() {
+    if (started) return;
+    started = true; t0 = last = performance.now();
+    warp = reduce ? 0 : 1;
+  }
+  if (document.readyState === "complete") setTimeout(startIntro, 60);
+  else addEventListener("load", function () { setTimeout(startIntro, 60); });
+  setTimeout(startIntro, 2500);
   function frame(now) {
+    if (!started) { requestAnimationFrame(frame); return; }
     // When nothing is moving (no scroll, no mouse, no warp or shooting star), the stars only twinkle,
     // so drawing every other frame looks the same and halves the work.
     if (!reduce && scrollY === lastSY && now - lastMove > 600 && warp <= 0 && !shooters.length && Math.abs(vel) < 0.05 && now - last < 30) {
@@ -223,7 +235,7 @@
   addEventListener("resize", function () { geoDirty = true; });
   addEventListener("load", function () { geoDirty = true; });
   function updateWorld() {
-    if (geoDirty) measure();
+    if (geoDirty && scrollY > 2) measure();
     if (scrollY !== worldY) {             // nothing to move while the page is still
       worldY = scrollY;
       if (!reduce && heroText) {
@@ -236,7 +248,7 @@
           heroDone = false;
         } else if (!heroDone) { heroText.style.opacity = "0.15"; heroDone = true; }
       }
-      if (!reduce) {
+      if (!reduce && secTops.length) {
         for (var i = 0; i < planets.length; i++) {
           var p = planets[i], top = p.top - scrollY;
           if (top + p.h < -200 || top > innerHeight + 200) continue;
@@ -277,6 +289,7 @@
   /* ---------------- FX canvas: comet trail + click bursts ---------------- */
   var fx = $("fx"), fctx = fx.getContext("2d"), parts = [], running = false, FW, FH;
   function fxSize() {
+    if (!fine) { if (fx.width) fx.width = fx.height = 0; FW = FH = 0; return; }   // touch screens never use it
     var w = Math.floor((fx.clientWidth || innerWidth) * DPR), h = Math.floor((fx.clientHeight || innerHeight) * DPR);
     if (w === FW && h === FH) return;             // address-bar resizes on phones: nothing to do
     FW = fx.width = w; FH = fx.height = h;

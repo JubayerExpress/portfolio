@@ -674,3 +674,6 @@ a.bpn-i:hover span{text-decoration:underline;text-underline-offset:3px}
 .bp-offers.off>*{pointer-events:none}
 .bp-offers{transition:opacity .3s,transform .3s}
 @media (prefers-reduced-motion:reduce){.bp-inline-offers .bpo-cp::after{animation:none}}
+
+/* touch screens: no mouse glow layer */
+@media (pointer:coarse){.glow{display:none}}
