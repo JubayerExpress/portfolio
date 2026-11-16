@@ -167,24 +167,162 @@
     }).catch(function (e) { toast(e.message, "err"); })
       .then(function () { btn.textContent = "Save to GitHub"; refresh(); });
   }
-  /* ---------- a small preview page per book: books/<link-name>/index.html ----------
-     Facebook, Messenger and WhatsApp read these to show the book's cover and title,
-     then the page sends the visitor to the book on the main site. */
+  /* ---------- link previews for Facebook, Messenger, WhatsApp, Instagram, Telegram, X, LinkedIn, Discord ----------
+     On Save the admin draws a wide share card (1200×630 JPEG, ~100 KB) for each book and one for the
+     bookstore, uploads them to assets/share/, and writes a small preview page per book:
+     books/<link-name>/index.html. Those pages carry every tag the apps read, then open the book on the site. */
   function escAttr(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
-  function bookPageHtml(b) {
-    var o = siteOrigin(), url = o + "/books/" + b.slug;
-    var img = !b.image ? "" : /^https?:/.test(b.image) ? b.image : o + "/" + String(b.image).replace(/^\.?\//, "");
-    var price = b.forSale && Number(b.price) > 0 ? "৳" + b.price + " · " : "";
+  var CARD_W = 1200, CARD_H = 630;
+  var CARD_FONT = '"Segoe UI","Inter","Hind Siliguri","Noto Sans Bengali","Nirmala UI","Vrinda",system-ui,sans-serif';
+  function loadImg(src) {
+    return new Promise(function (res, rej) {
+      if (!src) return rej(new Error("no image"));
+      var im = new Image(); im.crossOrigin = "anonymous";
+      im.onload = function () { res(im); }; im.onerror = function () { rej(new Error("image")); };
+      im.src = /^https?:|^data:/.test(src) ? src : (previews[src] || src);
+    });
+  }
+  function rnd(seed) { var x = 0; for (var i = 0; i < seed.length; i++) x = (x * 31 + seed.charCodeAt(i)) | 0; return function () { x = (x * 1103515245 + 12345) | 0; return ((x >>> 8) & 0xffff) / 0xffff; }; }
+  function cardBase(seed) {
+    var c = document.createElement("canvas"); c.width = CARD_W; c.height = CARD_H;
+    var g = c.getContext("2d");
+    var bg = g.createLinearGradient(0, 0, CARD_W, CARD_H); bg.addColorStop(0, "#05060f"); bg.addColorStop(1, "#140b2e");
+    g.fillStyle = bg; g.fillRect(0, 0, CARD_W, CARD_H);
+    [[260, 300, 420, "rgba(124,92,255,.38)"], [1050, 90, 380, "rgba(34,211,238,.20)"], [980, 600, 340, "rgba(255,107,203,.18)"]].forEach(function (o) {
+      var r = g.createRadialGradient(o[0], o[1], 0, o[0], o[1], o[2]); r.addColorStop(0, o[3]); r.addColorStop(1, "rgba(0,0,0,0)");
+      g.fillStyle = r; g.fillRect(0, 0, CARD_W, CARD_H);
+    });
+    var R = rnd(seed); g.fillStyle = "#fff";
+    for (var i = 0; i < 140; i++) { g.globalAlpha = 0.15 + R() * 0.6; g.beginPath(); g.arc(R() * CARD_W, R() * CARD_H, R() * 1.6 + 0.3, 0, 7); g.fill(); }
+    g.globalAlpha = 1;
+    return { c: c, g: g };
+  }
+  function drawBook(g, im, x, y, h, title) {
+    var w = im ? Math.min(h * 0.82, h * im.width / im.height) : h * 0.68;
+    g.save(); g.shadowColor = "rgba(0,0,0,.65)"; g.shadowBlur = 40; g.shadowOffsetX = 18; g.shadowOffsetY = 22;
+    g.fillStyle = "#222"; g.fillRect(x, y, w, h); g.restore();
+    if (im) g.drawImage(im, x, y, w, h);
+    else { var gg = g.createLinearGradient(x, y, x + w, y + h); gg.addColorStop(0, "#7c5cff"); gg.addColorStop(1, "#22d3ee"); g.fillStyle = gg; g.fillRect(x, y, w, h);
+      g.fillStyle = "#fff"; g.font = "700 30px " + CARD_FONT; wrapText(g, title, w - 30).slice(0, 4).forEach(function (l, i) { g.fillText(l, x + 15, y + 50 + i * 38); }); }
+    var sp = g.createLinearGradient(x, 0, x + w * 0.12, 0);
+    sp.addColorStop(0, "rgba(0,0,0,.45)"); sp.addColorStop(0.25, "rgba(255,255,255,.25)"); sp.addColorStop(0.5, "rgba(0,0,0,.15)"); sp.addColorStop(1, "rgba(0,0,0,0)");
+    g.fillStyle = sp; g.fillRect(x, y, w * 0.12, h);
+    g.fillStyle = "#e9e3d6"; g.fillRect(x + w, y + 4, 7, h - 8);
+    return w;
+  }
+  function wrapText(g, text, maxW) {
+    var words = String(text || "").split(/\s+/), lines = [], cur = "";
+    words.forEach(function (wd) { var t = cur ? cur + " " + wd : wd; if (g.measureText(t).width > maxW && cur) { lines.push(cur); cur = wd; } else cur = t; });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+  function pill(g, x, y, text, bg, fg, font) {
+    g.font = font; var w = g.measureText(text).width + 32;
+    g.fillStyle = bg; g.beginPath(); if (g.roundRect) g.roundRect(x, y, w, 40, 20); else g.rect(x, y, w, 40); g.fill();
+    g.fillStyle = fg; g.fillText(text, x + 16, y + 28); return w;
+  }
+  function money(n) { return "৳" + Number(n).toLocaleString("en-IN"); }
+  function drawBookCard(b) {
+    return (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function () {
+      return loadImg(b.image).catch(function () { return null; });
+    }).then(function (im) {
+      var k = cardBase(b.slug || b.title), g = k.g;
+      var bw = drawBook(g, im, 90, 70, 490, b.title);
+      var x = Math.max(560, 90 + bw + 80), maxW = CARD_W - x - 70, y = 120;
+      g.textBaseline = "alphabetic";
+      g.fillStyle = "#22d3ee"; g.font = "600 24px " + CARD_FONT; g.fillText("BOOKS BY JUBAYER", x, y); y += 30;
+      var size = 64; g.font = "700 " + size + "px " + CARD_FONT;
+      var lines = wrapText(g, b.title, maxW);
+      while (lines.length > 3 && size > 40) { size -= 6; g.font = "700 " + size + "px " + CARD_FONT; lines = wrapText(g, b.title, maxW); }
+      g.fillStyle = "#ffffff"; lines.slice(0, 3).forEach(function (l) { y += size * 1.2; g.fillText(l, x, y); });
+      y += 40;
+      var sale = b.forSale && Number(b.price) > 0;
+      if (sale) {
+        g.font = "700 64px " + CARD_FONT;
+        var pg = g.createLinearGradient(x, y, x + 260, y); pg.addColorStop(0, "#f7dc96"); pg.addColorStop(1, "#e8b04f");
+        g.fillStyle = pg; y += 56; g.fillText(money(b.price), x, y);
+        var pw = g.measureText(money(b.price)).width;
+        if (Number(b.oldPrice) > Number(b.price)) {
+          g.font = "500 32px " + CARD_FONT; g.fillStyle = "rgba(255,255,255,.5)";
+          var ox = x + pw + 22, ow = g.measureText(money(b.oldPrice)).width;
+          g.fillText(money(b.oldPrice), ox, y - 6); g.fillRect(ox, y - 17, ow, 3);
+          var off = Math.round((1 - b.price / b.oldPrice) * 100);
+          pill(g, ox + ow + 18, y - 40, "−" + off + "%", "#c6ff3d", "#10130a", "700 24px " + CARD_FONT);
+        }
+        y += 34;
+      }
+      var px = x;
+      if (b.badge) px += pill(g, px, y, String(b.badge).toUpperCase(), "#e8b04f", "#2b1d04", "700 20px " + CARD_FONT) + 12;
+      if (sale && !b.soldOut) pill(g, px, y, "🛒 Order now", "rgba(255,255,255,.12)", "#fff", "600 20px " + CARD_FONT);
+      if (b.soldOut) pill(g, px, y, "Sold out", "rgba(255,255,255,.12)", "#fff", "600 20px " + CARD_FONT);
+      g.fillStyle = "rgba(255,255,255,.62)"; g.font = "500 24px " + CARD_FONT;
+      g.fillText("jubayer.bond/books/" + b.slug, x, CARD_H - 70);
+      var line = g.createLinearGradient(0, 0, CARD_W, 0); line.addColorStop(0, "#7c5cff"); line.addColorStop(0.5, "#22d3ee"); line.addColorStop(1, "#ff6bcb");
+      g.fillStyle = line; g.fillRect(0, CARD_H - 10, CARD_W, 10);
+      return k.c.toDataURL("image/jpeg", 0.84).split(",")[1];
+    });
+  }
+  function drawStoreCard() {
+    var list = D.books.slice(0, 3);
+    return (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function () {
+      return Promise.all(list.map(function (b) { return loadImg(b.image).catch(function () { return null; }); }));
+    }).then(function (ims) {
+      var k = cardBase("bookstore"), g = k.g;
+      var pos = [[120, 120, 400], [300, 80, 460], [500, 120, 400]];
+      if (list.length === 1) pos = [[300, 80, 460]];
+      if (list.length === 2) pos = [[180, 100, 430], [400, 100, 430]];
+      ims.forEach(function (im, i) { if (pos[i]) drawBook(g, im, pos[i][0], pos[i][1], pos[i][2], list[i].title); });
+      var x = 820;
+      g.fillStyle = "#22d3ee"; g.font = "600 24px " + CARD_FONT; g.fillText("JUBAYER.BOND", x, 190);
+      g.fillStyle = "#fff"; g.font = "700 66px " + CARD_FONT; g.fillText("Bookstore", x, 270);
+      g.fillStyle = "rgba(255,255,255,.75)"; g.font = "500 28px " + CARD_FONT;
+      ["Books by Jubayer", "bKash or cash on delivery"].forEach(function (l, i) { g.fillText(l, x, 330 + i * 42); });
+      pill(g, x, 430, "📚 Shop now", "#e8b04f", "#2b1d04", "700 22px " + CARD_FONT);
+      var line = g.createLinearGradient(0, 0, CARD_W, 0); line.addColorStop(0, "#7c5cff"); line.addColorStop(0.5, "#22d3ee"); line.addColorStop(1, "#ff6bcb");
+      g.fillStyle = line; g.fillRect(0, CARD_H - 10, CARD_W, 10);
+      return k.c.toDataURL("image/jpeg", 0.84).split(",")[1];
+    });
+  }
+  // GitHub names every file by the SHA-1 of "blob <size>\0<bytes>": comparing it tells us if a picture really changed.
+  function blobSha(b64) {
+    var bin = atob(b64), n = bin.length, head = "blob " + n + "\0", buf = new Uint8Array(head.length + n);
+    for (var i = 0; i < head.length; i++) buf[i] = head.charCodeAt(i);
+    for (var j = 0; j < n; j++) buf[head.length + j] = bin.charCodeAt(j);
+    return crypto.subtle.digest("SHA-1", buf).then(function (d) { return Array.prototype.map.call(new Uint8Array(d), function (x) { return ("0" + x.toString(16)).slice(-2); }).join(""); });
+  }
+  function putImage(path, b64, message) {
+    return Promise.all([blobSha(b64), api("/contents/" + path + "?ref=" + encodeURIComponent(cfg.branch)).then(function (r) { return r.json(); }, function (e) { if (e.status === 404) return null; throw e; })])
+      .then(function (r) {
+        var sha = r[0], cur = r[1];
+        if (cur && cur.sha === sha) return { sha: sha, changed: false };
+        var body = { message: message, content: b64, branch: cfg.branch }; if (cur && cur.sha) body.sha = cur.sha;
+        return api("/contents/" + path, { method: "PUT", body: JSON.stringify(body) }).then(function () { return { sha: sha, changed: true }; });
+      });
+  }
+  function bookPageHtml(b, card) {
+    var o = siteOrigin(), url = o + "/books/" + b.slug + "/";
+    var cover = !b.image ? "" : /^https?:/.test(b.image) ? b.image : o + "/" + String(b.image).replace(/^\.?\//, "");
+    var img = card ? o + "/" + card.path + "?v=" + card.sha.slice(0, 8) : cover;
+    var sale = b.forSale && Number(b.price) > 0;
+    var price = sale ? "৳" + b.price + (Number(b.oldPrice) > Number(b.price) ? " (was ৳" + b.oldPrice + ")" : "") + " · " : "";
     var desc = (price + String(b.blurb || "").replace(/\s+/g, " ").trim()).slice(0, 190);
     if (desc.length >= 190) desc = desc.replace(/\s+\S*$/, "") + "…";
-    return "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\" />\n<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\" />\n" +
-      "<!-- Made by the admin panel when you press Save. It shows this book's preview when the link is shared,\n     then opens the book on the main site. Edit the book in admin.html, not here. -->\n" +
+    var title = "📚 " + b.title + (sale ? " — ৳" + b.price : "");
+    var bn = /[ঀ-৿]/.test(b.title + " " + (b.blurb || ""));
+    var m = function (k, v, attr) { return v ? "<meta " + (attr || "property") + "=\"" + k + "\" content=\"" + escAttr(v) + "\" />\n" : ""; };
+    return "<!doctype html>\n<html lang=\"" + (bn ? "bn" : "en") + "\">\n<head>\n<meta charset=\"utf-8\" />\n<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\" />\n" +
+      "<!-- Made by the admin panel when you press Save. It gives this book a proper preview on Facebook, Messenger,\n     WhatsApp, Instagram, Telegram, X, LinkedIn and Discord, then opens the book on the main site.\n     Edit the book in admin.html, not here. -->\n" +
       "<title>" + escAttr(b.title) + " — Books by Jubayer</title>\n" +
-      "<meta name=\"description\" content=\"" + escAttr(desc) + "\" />\n" +
+      m("description", desc, "name") +
       "<link rel=\"canonical\" href=\"" + escAttr(url) + "\" />\n" +
-      "<meta property=\"og:type\" content=\"book\" />\n<meta property=\"og:url\" content=\"" + escAttr(url) + "\" />\n" +
-      "<meta property=\"og:title\" content=\"📚 " + escAttr(b.title) + "\" />\n<meta property=\"og:description\" content=\"" + escAttr(desc) + "\" />\n" +
-      (img ? "<meta property=\"og:image\" content=\"" + escAttr(img) + "\" />\n<meta name=\"twitter:card\" content=\"summary_large_image\" />\n" : "") +
+      m("theme-color", "#7c5cff", "name") +
+      m("og:site_name", "Jubayer — jubayer.bond") + m("og:type", "website") + m("og:locale", bn ? "bn_BD" : "en_US") +
+      m("og:url", url) + m("og:title", title) + m("og:description", desc) +
+      m("og:image", img) + m("og:image:secure_url", img) +
+      (card ? m("og:image:type", "image/jpeg") + m("og:image:width", "1200") + m("og:image:height", "630") : "") +
+      m("og:image:alt", "Cover of " + b.title) +
+      m("twitter:card", "summary_large_image", "name") + m("twitter:title", title, "name") + m("twitter:description", desc, "name") +
+      m("twitter:image", img, "name") + m("twitter:image:alt", "Cover of " + b.title, "name") +
       "<link rel=\"icon\" href=\"/favicon.svg\" type=\"image/svg+xml\" />\n" +
       "<script>location.replace(\"/\" + location.search + (/^#(buy|reviews)\\//.test(location.hash) ? location.hash : \"#book/" + encodeURIComponent(b.slug) + "\"));</script>\n" +
       "<style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#05060f;color:#e8eaf3;font-family:system-ui,sans-serif;text-align:center}a{color:#22d3ee}</style>\n" +
@@ -201,12 +339,23 @@
       });
   }
   function syncBookPages() {
-    var list = D.books.filter(function (b) { return b.slug; });
-    return list.reduce(function (p, b) {
-      return p.then(function (n) {
-        return putIfChanged("books/" + b.slug + "/index.html", bookPageHtml(b), "Update share page for " + (b.title || b.slug)).then(function (ch) { return n + (ch ? 1 : 0); });
+    var list = D.books.filter(function (b) { return b.slug; }), changed = 0;
+    var step = Promise.resolve();
+    // the bookstore card (used by jubayer.bond/books)
+    step = step.then(function () {
+      return drawStoreCard().then(function (b64) { return putImage("assets/share/bookstore.jpg", b64, "Update bookstore share card"); })
+        .then(function (r) { if (r.changed) changed++; }, function () {});
+    });
+    list.forEach(function (b) {
+      step = step.then(function () {
+        var path = "assets/share/" + b.slug + ".jpg";
+        return drawBookCard(b).then(function (b64) { return putImage(path, b64, "Update share card for " + (b.title || b.slug)); })
+          .then(function (r) { if (r.changed) changed++; return { path: path, sha: r.sha }; }, function () { return null; })   // no card → the cover is used
+          .then(function (card) { return putIfChanged("books/" + b.slug + "/index.html", bookPageHtml(b, card), "Update share page for " + (b.title || b.slug)); })
+          .then(function (ch) { if (ch) changed++; });
       });
-    }, Promise.resolve(0));
+    });
+    return step.then(function () { return changed; });
   }
 
   function download() {
